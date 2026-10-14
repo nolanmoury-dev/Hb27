@@ -113,6 +113,11 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 .st{display:grid;grid-template-columns:3.2em 1fr 3.2em;align-items:center;gap:10px;font-size:clamp(15px,2.8vh,24px);font-weight:700}
 .st>b:first-child{text-align:right}.st small{display:block;text-align:center;color:var(--mute);font-weight:500;font-size:.7em;letter-spacing:.14em;text-transform:uppercase}
 .st i{display:flex;height:8px;background:#0a1630;border-radius:4px;overflow:hidden}.st u{display:block;height:100%}
+
+.tile.img{background-image:linear-gradient(180deg,rgba(4,7,15,.05) 30%,rgba(4,7,15,.88)),var(--img);background-size:cover,var(--sz);background-position:center,var(--pos);background-repeat:no-repeat}
+.tile.img.big{background-image:linear-gradient(180deg,rgba(4,7,15,0) 40%,rgba(4,7,15,.85)),linear-gradient(110deg,rgba(30,123,255,.35),rgba(4,7,15,0) 60%),var(--img)}
+.tile.img small{color:#dbe8ff;text-shadow:0 1px 6px #000}.tile.img b{text-shadow:0 2px 10px #000}
+.crest{width:100%;display:block}
 </style>
 </head>
 <body>
@@ -134,11 +139,11 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 <section id="menu" class="scr">
   <div class="topbar"><div class="brand">HB<em>27</em><small>LE JEU DE HANDBALL</small></div><div class="tabs"><span class="tab on">ACCUEIL</span><span class="tab">CLUBS</span><span class="tab">COMPÉTITIONS</span><span class="tab">CARRIÈRE</span><span class="tab">EN LIGNE</span></div></div>
   <div class="tiles">
-    <button class="tile big" id="nPlay" data-m="1"><b>1 JOUEUR</b><small>Coup d'envoi · toi contre le bot</small></button>
-    <button class="tile" data-m="2"><b>2 JOUEURS</b><small>2 manettes ou clavier</small></button>
-    <button class="tile" id="nCtl"><b>COMMANDES</b><small>Voir les touches</small></button>
-    <button class="tile" id="nSet"><b>RÉGLAGES</b><small>Son · caméra · musique</small></button>
-    <button class="tile" id="fs"><b>PLEIN ÉCRAN</b><small>Immersion totale</small></button>
+    <button class="tile big img" id="nPlay" data-m="1" style="--img:url(menu_art.png);--sz:300% auto;--pos:80% 30%"><b>1 JOUEUR</b><small>Coup d'envoi · toi contre le bot</small></button>
+    <button class="tile img" data-m="2" style="--img:url(menu_art.png);--sz:420% auto;--pos:16% 72%"><b>2 JOUEURS</b><small>2 manettes ou clavier</small></button>
+    <button class="tile img" id="nCtl" style="--img:url(menu_art.png);--sz:400% auto;--pos:100% 62%"><b>COMMANDES</b><small>Voir les touches</small></button>
+    <button class="tile img" id="nSet" style="--img:url(menu_art.png);--sz:380% auto;--pos:2% 0%"><b>RÉGLAGES</b><small>Son · caméra · musique</small></button>
+    <button class="tile img" id="fs" style="--img:url(menu_art.png);--sz:320% auto;--pos:92% 22%"><b>PLEIN ÉCRAN</b><small>Immersion totale</small></button>
   </div>
   <button id="play" hidden></button>
   <div class="foot"><span id="pads">Aucune manette détectée</span></div>
@@ -191,7 +196,7 @@ let mode=1,state='menu',P=[],ball,score=[0,0],clock=240,gt=0,conc=0,banner='',ct
 if('ontouchstart' in window||navigator.maxTouchPoints>0)document.body.classList.add('touch');
 const CFG=Object.assign({vol:2,trk:0,sfx:1,cam:1,hint:1},(()=>{try{return JSON.parse(localStorage.getItem('hb27')||'{}')}catch(e){return{}}})());
 let ST=[{},{}],it=0;const resetST=()=>{ST=[0,1].map(()=>({sh:0,on:0,ps:0,pos:0,sv:0}))};resetST();
-const RAT=[[88,86,87,90],[80,79,82,84]],rat=i=>'ATT '+RAT[i][0]+' · MIL '+RAT[i][1]+' · DEF '+RAT[i][2]+' · GAR '+RAT[i][3];
+const RAT=[[88,86,87,90],[80,79,82,84],[84,83,82,85],[81,82,80,83],[79,80,78,82],[77,78,80,79]],rat=i=>'ATT '+RAT[i][0]+' · MIL '+RAT[i][1]+' · DEF '+RAT[i][2]+' · GAR '+RAT[i][3];
 const save=()=>{try{localStorage.setItem('hb27',JSON.stringify(CFG))}catch(e){}};
 
 /* ---------- chargement ---------- */
@@ -211,13 +216,14 @@ const save=()=>{try{localStorage.setItem('hb27',JSON.stringify(CFG))}catch(e){}}
 function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));state=id==='game'?state:id}
 
 /* ---------- sélection d'équipes ---------- */
-const TEAMS=[{name:'PARIS',full:'Paris Saint-Germain',col:'#0a1f44',tr:'#d7263d',nc:'#fff',gk:'#34c38f',players:[{n:'Løvkvist',num:1},{n:'Steins',num:6},{n:'Syprzak',num:21},{n:'Prandi',num:71}]},{name:'CHAMBÉRY',full:'Chambéry Savoie Mont-Blanc',col:'#f2c230',tr:'#111',nc:'#111',gk:'#1b2433',players:[{n:'Rodríguez',num:1},{n:'Traoré',num:3},{n:'Jóhannsson',num:5},{n:'Pettersen',num:17}]}];
+const TEAMS=[{name:'PARIS',full:'Paris Saint-Germain',col:'#0a1f44',tr:'#d7263d',nc:'#fff',gk:'#34c38f',players:[{n:'Løvkvist',num:1},{n:'Steins',num:6},{n:'Syprzak',num:21},{n:'Prandi',num:71}]},{name:'CHAMBÉRY',full:'Chambéry Savoie Mont-Blanc',col:'#f2c230',tr:'#111',nc:'#111',gk:'#1b2433',players:[{n:'Rodríguez',num:1},{n:'Traoré',num:3},{n:'Jóhannsson',num:5},{n:'Pettersen',num:17}]},{name:'MONTPELLIER',full:'Montpellier Handball',col:'#1b3a8a',tr:'#f2f5fa',nc:'#fff',gk:'#f2c230',players:[{n:'Garnier',num:16},{n:'Lefèvre',num:7},{n:'Costa',num:9},{n:'Moreau',num:22}]},{name:'NANTES',full:'HBC Nantes',col:'#1f8a4c',tr:'#f2f5fa',nc:'#fff',gk:'#d7263d',players:[{n:'Perrin',num:1},{n:'Hamel',num:5},{n:'Duval',num:10},{n:'Roche',num:14}]},{name:'AIX',full:'Pays d\'Aix UC',col:'#7a1f2b',tr:'#f2c230',nc:'#fff',gk:'#34c38f',players:[{n:'Blanc',num:12},{n:'Girard',num:3},{n:'Faure',num:8},{n:'Vidal',num:19}]},{name:'NÎMES',full:'USAM Nîmes Gard',col:'#e8edf5',tr:'#d7263d',nc:'#111',gk:'#1b2433',players:[{n:'Caron',num:30},{n:'Mercier',num:2},{n:'Lopez',num:6},{n:'Benoit',num:11}]}];
 const NC=['#fff','#111'];let flip=false,half2=false,ht=0,total=240;const PL=p=>TEAMS[sel[p.t]].players[p.i];
 const DURS=[2,4,6,10],DIF=[{n:'Amateur',bs:.85,shot:2,save:.4},{n:'Pro',bs:1,shot:3,save:.55},{n:'Légende',bs:1.12,shot:4,save:.68}];
 let dif=1,dur=4,sel=[0,1];
+const crest=T=>`<svg viewBox="0 0 100 120" class="crest" aria-hidden="true"><path d="M10 10h80v55c0 28-24 42-40 48C34 107 10 93 10 65z" fill="${T.col}" stroke="#f2f5fa" stroke-width="5"/><path d="M10 10h80v22H10z" fill="${T.tr}"/><text x="50" y="80" text-anchor="middle" font-size="30" font-weight="800" font-style="italic" fill="${T.nc}" font-family="Barlow Condensed,Impact,sans-serif">${T.name.slice(0,3)}</text></svg>`;
 const shirt=(c,t)=>`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M30 12 L10 28 L20 46 L30 40 L30 90 L70 90 L70 40 L80 46 L90 28 L70 12 Q50 26 30 12Z" fill="${c}" stroke="#f2f5fa" stroke-width="2.5"/><rect x="30" y="52" width="40" height="8" fill="${t}"/></svg>`;
 function card(i){const T=TEAMS[sel[i]],lab=mode==2?(i?'JOUEUR 2':'JOUEUR 1'):(i?'BOT':'TOI');
-  return `<button class="ar" data-i="${i}" data-d="-1" aria-label="Équipe précédente">‹</button><div class="kit">${shirt(T.col,T.tr)}</div><b>${T.name}</b><small>${T.full}</small><small>${rat(sel[i])}</small><span class="ro">${T.players.slice(1).map(q=>q.n).join(' · ')} · ${T.players[0].n} (G)</span><em>${lab}</em><button class="ar" data-i="${i}" data-d="1" aria-label="Équipe suivante">›</button>`}
+  return `<button class="ar" data-i="${i}" data-d="-1" aria-label="Équipe précédente">‹</button><div class="kit">${crest(T)}</div><div class="kit">${shirt(T.col,T.tr)}</div><b>${T.name}</b><small>${T.full}</small><small>${rat(sel[i])}</small><span class="ro">${T.players.slice(1).map(q=>q.n).join(' · ')} · ${T.players[0].n} (G)</span><em>${lab}</em><button class="ar" data-i="${i}" data-d="1" aria-label="Équipe suivante">›</button>`}
 function seg(id,items,get,set){const el=$(id);el.innerHTML='';items.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.className=get()==i?'sel':'';b.onclick=()=>{set(i);seg(id,items,get,set)};el.appendChild(b)})}
 function renderSetup(){$('t0').innerHTML=card(0);$('t1').innerHTML=card(1);
   seg('sdur',DURS.map(x=>x+' min'),()=>DURS.indexOf(dur),i=>dur=DURS[i]);seg('sdif',DIF.map(d=>d.n),()=>dif,i=>dif=i)}
@@ -547,10 +553,12 @@ function fig(x,gy,u,jc,o){const zz=o.z||0,tk=o.tuck||0,sw=o.sw||0,d=o.d||1,Y=gy-
   return hs[1]}
 function mball(x,y,r,al){mx.globalAlpha=al==null?1:al;const g=mx.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);g.addColorStop(0,'#fff');g.addColorStop(1,'#b9c4d8');mx.fillStyle=g;mx.beginPath();mx.arc(x,y,r,0,7);mx.fill();
   mx.strokeStyle='#1e4fc2';mx.lineWidth=r*.28;mx.beginPath();mx.arc(x,y,r*.6,0,1.7);mx.stroke();mx.strokeStyle='#04070f';mx.lineWidth=r*.1;mx.beginPath();mx.arc(x,y,r,0,7);mx.stroke();mx.globalAlpha=1}
+const BG=new Image();BG.src='menu_bg.jpg';
 function mdraw(now){const T=now/1000,w=mc.width,h=mc.height,u=h*.125,gy=h*.85;mx.setTransform(1,0,0,1,0,0);
   let g=mx.createRadialGradient(w*.7,h*.3,0,w*.7,h*.3,w*.8);g.addColorStop(0,'#12306a');g.addColorStop(.45,'#0a1630');g.addColorStop(1,'#04070f');mx.fillStyle=g;mx.fillRect(0,0,w,h);
   for(const f of[.45,.75,.95]){const r=mx.createRadialGradient(w*f,0,0,w*f,0,h*.7);r.addColorStop(0,'rgba(140,190,255,.25)');r.addColorStop(1,'rgba(140,190,255,0)');mx.fillStyle=r;mx.fillRect(0,0,w,h)}
-  const fl=mx.createLinearGradient(0,h*.78,0,h);fl.addColorStop(0,'#123a78');fl.addColorStop(1,'#0b2350');mx.fillStyle=fl;mx.fillRect(0,h*.78,w,h*.22);mx.fillStyle='rgba(242,245,250,.25)';mx.fillRect(0,h*.78,w,Math.max(2,h*.004));
+  if(BG.complete&&BG.naturalWidth){const r=Math.max(w/BG.width,h/BG.height);mx.globalAlpha=.55;mx.drawImage(BG,(w-BG.width*r)/2,(h-BG.height*r)/2,BG.width*r,BG.height*r);mx.globalAlpha=1;mx.fillStyle='rgba(4,7,15,.4)';mx.fillRect(0,0,w,h)}
+  const fl=mx.createLinearGradient(0,h*.78,0,h);fl.addColorStop(0,'#123a78');fl.addColorStop(1,'#0b2350');mx.fillStyle='rgba(10,35,80,.3)';mx.fillRect(0,h*.78,w,h*.22);mx.fillStyle='rgba(242,245,250,.25)';mx.fillRect(0,h*.78,w,Math.max(2,h*.004));
   {const x=w*.755+Math.sin(T*.8)*w*.012,sw=Math.sin(T*9)*.9,b=.15+.75*Math.abs(Math.cos(T*4.5));
    fig(x,gy,u,'#d7263d',{sw,z:Math.abs(Math.sin(T*9))*.04,a1:[-sw*.3,.55],a2:[.5,Math.max(.45,1.4-b)]});mball(x+u*.55,gy-u*b,u*.22)}
   {const x=w*.855,q=(T%2.4)/2.4,o={sw:0,z:0,tuck:0,a1:[.3,.4],a2:[.4,.3]};
