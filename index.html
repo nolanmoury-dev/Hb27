@@ -154,6 +154,9 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 #halfm{background:linear-gradient(90deg,rgba(4,7,15,.86),rgba(4,7,15,.12) 75%);align-items:flex-start;text-align:left;padding-left:6vw;backdrop-filter:none}#halfm h2,#halfm p,#hst,#halfm .ev{text-shadow:0 2px 12px #000}
 #hst{background:rgba(4,7,15,.35);border-radius:10px;padding:1.4vh 1.2vw;backdrop-filter:blur(6px)}
 #end{background:rgba(4,7,15,.5)!important;backdrop-filter:blur(3px)}#end *{text-shadow:0 2px 10px #000}
+.avt{width:9vh;height:9vh;border-radius:50%;border:2px solid #f2f5fa;background:#0a1630 center/cover;font-weight:800;font-size:3.6vh;color:#fff;flex:none}.avn{font-weight:700;font-size:clamp(14px,2.6vh,22px);margin-left:-2.6vw;max-width:14vw;overflow:hidden;text-overflow:ellipsis}
+.accf{display:flex;flex-direction:column;gap:1.4vh;width:min(86vw,420px)}.accf input{padding:1.6vh 1.4vw;border-radius:8px;border:2px solid rgba(142,160,189,.4);background:rgba(10,22,48,.8);color:#fff;font:inherit;font-size:clamp(16px,2.8vh,24px)}.accf input:focus{outline:none;border-color:var(--blue)}
+.onb{cursor:pointer;color:inherit;font:inherit}.onb:hover,.onb.pf{border-color:var(--blue)}
 </style>
 </head>
 <body>
@@ -173,7 +176,7 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 </section>
 
 <section id="menu" class="scr">
-  <div class="topbar"><div class="brand">HB<em>27</em><small>LE JEU DE HANDBALL</small></div><div class="tabs"><button class="tab on">ACCUEIL</button><button class="tab" id="nLg">CARRIÈRE</button><button class="tab" id="tCtl">COMMANDES</button><button class="tab" id="tSet">RÉGLAGES</button></div></div>
+  <div class="topbar"><button class="avt" id="avt" aria-label="Profil et réglages"></button><span class="avn" id="avn"></span><div class="brand">HB<em>27</em><small>LE JEU DE HANDBALL</small></div><div class="tabs"><button class="tab on">ACCUEIL</button><button class="tab" id="nLg">CARRIÈRE</button><button class="tab" id="nOn">EN LIGNE</button><button class="tab" id="tCtl">COMMANDES</button><button class="tab" id="tSet">RÉGLAGES</button></div></div>
   <div class="tiles">
     <button class="tile big img" id="nPlay" style="--img:url(menu_art.png);--sz:300% auto;--pos:80% 30%"><b>COUP D'ENVOI</b><small>1 ou 2 joueurs · manette ou clavier</small></button>
     <button class="tile img" id="nCtl" style="--img:url(menu_art.png);--sz:400% auto;--pos:100% 62%"><b>COMMANDES</b><small>Voir les touches</small></button>
@@ -200,6 +203,15 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
   <div class="note" id="dinfo"></div>
   <div class="mini"><button id="dback" data-back>RETOUR</button><button class="go" id="dgo">SUIVANT</button></div></div></section>
 
+<section id="acc" class="scr"><div class="srow"><h2 id="accT">CRÉE TON COMPTE</h2><div class="sub">HB27 · PROFIL</div>
+  <div class="accf"><input id="accP" placeholder="Pseudo" maxlength="16" autocomplete="username"><input id="accW" type="password" placeholder="Mot de passe" autocomplete="current-password"><input id="accW2" type="password" placeholder="Confirmer le mot de passe"></div>
+  <div class="note" id="accE"></div><div class="mini"><button id="accSw">Changer de compte</button><button class="go" id="accGo">VALIDER</button></div></div></section>
+
+<section id="online" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">En ligne</div></div>
+<div class="lgpanel"><div class="lgph"><i class="dot big" style="--a:#1e7bff;--b:#f2f5fa"></i><b>MODE EN LIGNE</b><span id="onSt"></span></div>
+ <div class="chub" style="padding:5vh 2vw"><button class="cc onb"><small>MATCH CLASSÉ</small><b>PARTIE RAPIDE</b><small>Trouve un adversaire au hasard</small></button><button class="cc onb"><small>AMIS</small><b>SALON PRIVÉ</b><small>Joue contre un ami avec un code</small></button><button class="cc onb"><small>SAISON</small><b>CLASSEMENT</b><small>Les meilleurs joueurs</small></button></div></div>
+<div class="lgfoot"><button id="onBack" data-back>Retour</button></div></section>
+
 <section id="league" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">Carrière</div><span class="lgsep"></span><div class="seg" id="lgTabs"></div></div>
 <div class="lgpanel"><div class="lgph"><i class="dot big" style="--a:#1e7bff;--b:#f2f5fa"></i><b>LIQUI MOLY STARLIGUE</b><span id="lgSub"></span></div><div id="ltab"></div></div>
 <div class="lgfoot"><button id="lgBack" data-back>Retour</button><span class="lgmid"><button id="lgSave">Sauvegarder</button><button id="lgNew">Nouvelle carrière</button></span><button class="go" id="lgPlay">JOUER</button></div></section>
@@ -207,7 +219,7 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 <section id="settings" class="scr"><div class="srow">
   <h2>RÉGLAGES</h2>
   <div class="set"><div><label>Volume musique</label><div class="seg" id="svol"></div></div><div><label>Piste</label><div class="seg" id="strk"></div></div></div>
-  <div class="set"><div><label>Caméra</label><div class="seg" id="scam"></div></div><div><label>Bruitages</label><div class="seg" id="ssfx"></div></div><div><label>Aide touches en match</label><div class="seg" id="shint"></div></div><div><label>Graphismes</label><div class="seg" id="sg3"></div></div></div>
+  <div class="set"><div><label>Caméra</label><div class="seg" id="scam"></div></div><div><label>Bruitages</label><div class="seg" id="ssfx"></div></div><div><label>Aide touches en match</label><div class="seg" id="shint"></div></div><div><label>Graphismes</label><div class="seg" id="sg3"></div></div><div><label>Profil</label><div class="seg"><button id="spPh">Changer la photo</button><button id="spOut">Se déconnecter</button></div><input type="file" id="spF" accept="image/*" hidden></div></div>
   <div class="mini"><button class="go" id="setBack" data-back>RETOUR</button></div>
 </div></section>
 
@@ -257,7 +269,7 @@ const save=()=>{try{localStorage.setItem('hb27',JSON.stringify(CFG))}catch(e){}}
     const e=1-Math.pow(1-p,2);
     $('fill').style.width=(e*100)+'%';$('pct').textContent=Math.round(e*100)+'%';
     if(p<1)requestAnimationFrame(step);
-    else setTimeout(()=>{$('load').style.opacity=0;setTimeout(()=>{show('menu')},500)},250);
+    else setTimeout(()=>{$('load').style.opacity=0;setTimeout(()=>{afterLoad()},500)},250);
   }
   requestAnimationFrame(step);
 })();
@@ -358,7 +370,7 @@ function sfx(k){if(!CFG.sfx||!MU.a||MU.a.state!=='running')return;const t=MU.a.c
   if(k==='goal'){[60,64,67,72].forEach((m,i)=>tone(NOTE(m),t+i*.09,.7,'triangle',.3));noise(t,.9,.2,3000)}}
 function toggleMute(){MU.on=!MU.on;applyVol();$('mute').style.opacity=MU.on?1:.4}
 $('mute').onclick=toggleMute;
-addEventListener('pointerdown',musicStart);addEventListener('keydown',e=>{musicStart();if(e.code==='KeyM')toggleMute()});
+addEventListener('pointerdown',musicStart);addEventListener('keydown',e=>{musicStart();if(e.target.tagName==='INPUT')return;if(e.code==='KeyM')toggleMute()});
 
 /* ---------- menu ---------- */
 document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{mode=+b.dataset.m;document.querySelectorAll('.opt').forEach(o=>{const s=o===b;o.classList.toggle('sel',s);o.setAttribute('aria-checked',s)})});
@@ -369,7 +381,25 @@ function updPads(){const n=gps().length;$('pads').textContent=n?n+' manette'+(n>
 addEventListener('gamepadconnected',updPads);addEventListener('gamepaddisconnected',updPads);
 const toMenu=()=>{$('pause').style.display='none';$('end').style.display='none';state='menu';show('menu')};
 $('quit').onclick=togglePause;$('presume').onclick=togglePause;$('tomenu').onclick=()=>{if(LG.on&&LG.wk){$('end').style.display='none';renderLg();show('league')}else toMenu()};$('pq').onclick=toMenu;$('again').onclick=()=>{if(LG.on){$('end').style.display='none';if(LG.wk<LGN)lgPlay();else{renderLg();show('league')}}else start()};
-$('pset').onclick=()=>openSet('pause');$('pctl').onclick=()=>openCtl('pause');document.querySelectorAll('.tile[data-m]').forEach(b=>b.onclick=()=>{lgMode(false);mode=+b.dataset.m;renderSetup();show('setup')});$('h2go').onclick=go2;let nwc=0;
+$('pset').onclick=()=>openSet('pause');$('pctl').onclick=()=>openCtl('pause');document.querySelectorAll('.tile[data-m]').forEach(b=>b.onclick=()=>{lgMode(false);mode=+b.dataset.m;renderSetup();show('setup')});$('h2go').onclick=go2;
+/* ---------- compte local ---------- */
+const ACK='hb27_acct';let ACC=null;try{ACC=JSON.parse(localStorage.getItem(ACK)||'null')}catch(e){}
+const hsh=async t=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('hb27|'+t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=5381;for(const c of'hb27|'+t)h=(h*33^c.charCodeAt(0))>>>0;return'd'+h}};
+const sesOK=()=>{try{return sessionStorage.getItem('hb27_ses')==='1'}catch(e){return false}},sesSet=v=>{try{v?sessionStorage.setItem('hb27_ses','1'):sessionStorage.removeItem('hb27_ses')}catch(e){}},accSave=()=>{try{localStorage.setItem(ACK,JSON.stringify(ACC))}catch(e){}};
+function setAvt(){const a=$('avt');a.style.backgroundImage=ACC&&ACC.av?`url(${ACC.av})`:'';a.textContent=ACC&&!ACC.av?ACC.n[0].toUpperCase():'';$('avn').textContent=ACC?ACC.n:''}
+function renderAcc(){const c=!ACC;$('accT').textContent=c?'CRÉE TON COMPTE':'BON RETOUR, '+ACC.n.toUpperCase();$('accP').style.display=$('accW2').style.display=c?'':'none';$('accSw').style.display=c?'none':'';$('accW').value=$('accP').value=$('accW2').value='';$('accE').textContent=c?'Ton pseudo et ton mot de passe restent sur cet appareil.':''}
+function afterLoad(){setAvt();if(ACC&&sesOK())show('menu');else{renderAcc();show('acc');setTimeout(()=>(ACC?$('accW'):$('accP')).focus(),100)}}
+$('accGo').onclick=async()=>{const w=$('accW').value,e=$('accE');
+  if(!ACC){const n=$('accP').value.trim();if(n.length<3)return e.textContent='Pseudo : 3 caractères minimum.';if(w.length<4)return e.textContent='Mot de passe : 4 caractères minimum.';if(w!==$('accW2').value)return e.textContent='Les deux mots de passe sont différents.';ACC={n,h:await hsh(w),av:''};accSave()}
+  else if(await hsh(w)!==ACC.h)return e.textContent='Mot de passe incorrect.';
+  sesSet(true);setAvt();show('menu')};
+document.querySelectorAll('#acc input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')$('accGo').click()}));
+let swc=0;$('accSw').onclick=()=>{const b=$('accSw');if(!swc){swc=1;b.textContent='Confirmer ? (efface le compte)';setTimeout(()=>{swc=0;b.textContent='Changer de compte'},3000);return}swc=0;b.textContent='Changer de compte';try{localStorage.removeItem(ACK)}catch(e){}ACC=null;setAvt();renderAcc()};
+$('avt').onclick=()=>openSet('menu');
+$('spOut').onclick=()=>{sesSet(false);renderAcc();show('acc')};$('spPh').onclick=()=>$('spF').click();
+$('spF').onchange=e=>{const fl=e.target.files[0];if(!fl||!ACC)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=128;const m=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);ACC.av=c.toDataURL('image/jpeg',.82);accSave();setAvt()};im.src=URL.createObjectURL(fl)};
+$('nOn').onclick=()=>{$('onSt').textContent=(ACC?ACC.n:'')+' · serveur non connecté';show('online')};$('onBack').onclick=()=>show('menu');
+document.querySelectorAll('.onb').forEach(b=>b.onclick=()=>{$('onSt').textContent='Bientôt disponible : il faut d\'abord brancher un serveur en ligne'});let nwc=0;
 $('lgSave').onclick=()=>{const b=$('lgSave'),ok=lgSave();b.textContent=ok?'Sauvegardé ✓':'Échec : stockage bloqué';setTimeout(()=>b.textContent='Sauvegarder',1800)};
 $('lgNew').onclick=()=>{const b=$('lgNew');if(!nwc){nwc=1;b.textContent='Confirmer ? (efface la sauvegarde)';setTimeout(()=>{nwc=0;b.textContent='Nouvelle carrière'},3000);return}
   nwc=0;b.textContent='Nouvelle carrière';try{localStorage.removeItem(LSK)}catch(e){}lgReset();LG.club=0;lgMode(true);renderDevs();show('devs')};$('nSet').onclick=()=>openSet('menu');$('tSet').onclick=()=>openSet('menu');$('tCtl').onclick=()=>openCtl('menu');$('nPlay').onclick=()=>{lgMode(false);renderDevs();show('devs')};$('dgo').onclick=()=>{if(LG.on)lgPlay();else{mode=NP;renderSetup();show('setup')}};$('dback').onclick=()=>{lgMode(false);show('menu')};addEventListener('gamepadconnected',()=>{if(state==='devs')renderDevs()});$('nLg').onclick=()=>{lgMode(true);mode=1;if(LG.wk)(renderLg(),show('league'));else{renderDevs();show('devs')}};$('lgPlay').onclick=lgPlay;$('lgBack').onclick=()=>{lgMode(false);show('menu')};$('nCtl').onclick=()=>openCtl('menu');
@@ -701,6 +731,7 @@ function padMenu(dt){const L=gps(),g=L[0];if(L.length!==pe.cnt){pe.cnt=L.length;
   navt-=dt;if(dir&&(dir!==pe.d||navt<=0)){navMove(dir);navt=pe.d===dir?.18:.4}if(!dir)navt=0;pe.d=dir;
   if(e('a',b[0]))navClick();if(e('b',b[1]))navBack()}
 addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
   if(state==='controls'){const k=document.querySelector(`.key[data-k="${e.code}"]`);if(k){k.classList.add('on');e.preventDefault()}}
   if((e.code==='Escape'||e.code==='KeyP')&&(state==='play'||state==='pause')){togglePause();return}
   if(navOK()){const m={ArrowUp:'u',ArrowLeft:'l',ArrowDown:'d',ArrowRight:'r'}[e.code];if(m&&state!=='controls'){navMove(m);e.preventDefault()}if(e.code==='Escape')navBack()}});
@@ -742,7 +773,7 @@ let last=performance.now();
 (function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;padMenu(dt);
   if(state==='play'||state==='goal'||state==='half'||state==='intro'||state==='full')update(dt);
   if(state==='play'||state==='goal'||state==='half'||state==='full'||state==='end'||state==='pause'||state==='intro')draw(now);
-  const mo=!$('load').classList.contains('on')&&['menu','setup','settings','controls','league','devs'].includes(state);
+  const mo=!$('load').classList.contains('on')&&['menu','setup','settings','controls','league','devs','online','acc'].includes(state);
   mc.style.display=mo?'block':'none';if(mo){mc.classList.toggle('dim',state!=='menu');mdraw(now)}
   requestAnimationFrame(loop)})(last);
 </script>
