@@ -1,5 +1,5 @@
 const crypto=require('crypto');
-const {SUPABASE_URL:U,SUPABASE_SERVICE_KEY:K,TOKEN_SECRET:S,ADMIN_PSEUDO}=process.env;
+const {SUPABASE_SERVICE_KEY:K,TOKEN_SECRET:S,ADMIN_PSEUDO}=process.env;const U=(process.env.SUPABASE_URL||'').trim().replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
 const AP=(ADMIN_PSEUDO||'Noln_mry').toLowerCase();
 const sb=async(p,o={})=>{const r=await fetch(`${U}/rest/v1/${p}`,{method:o.method||'GET',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'return=representation'},body:o.body?JSON.stringify(o.body):undefined});
   const t=await r.text();if(!r.ok)throw Object.assign(new Error(t),{status:r.status});return t?JSON.parse(t):[]};
