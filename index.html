@@ -205,7 +205,7 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 
 <section id="acc" class="scr"><div class="srow"><h2 id="accT">CRÉE TON COMPTE</h2><div class="sub">HB27 · PROFIL</div>
   <div class="accf"><input id="accP" placeholder="Pseudo" maxlength="16" autocomplete="username"><input id="accW" type="password" placeholder="Mot de passe" autocomplete="current-password"><input id="accW2" type="password" placeholder="Confirmer le mot de passe"></div>
-  <div class="note" id="accE"></div><div class="mini"><button id="accSw">Changer de compte</button><button class="go" id="accGo">VALIDER</button></div></div></section>
+  <div class="note" id="accE"></div><div class="mini"><button id="accSw">Changer de compte</button><button id="accOff" style="display:none">Jouer hors ligne</button><button class="go" id="accGo">VALIDER</button></div></div></section>
 
 <section id="online" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">En ligne</div></div>
 <div class="lgpanel"><div class="lgph"><i class="dot big" style="--a:#1e7bff;--b:#f2f5fa"></i><b>MODE EN LIGNE</b><span id="onSt"></span></div>
@@ -382,23 +382,31 @@ addEventListener('gamepadconnected',updPads);addEventListener('gamepaddisconnect
 const toMenu=()=>{$('pause').style.display='none';$('end').style.display='none';state='menu';show('menu')};
 $('quit').onclick=togglePause;$('presume').onclick=togglePause;$('tomenu').onclick=()=>{if(LG.on&&LG.wk){$('end').style.display='none';renderLg();show('league')}else toMenu()};$('pq').onclick=toMenu;$('again').onclick=()=>{if(LG.on){$('end').style.display='none';if(LG.wk<LGN)lgPlay();else{renderLg();show('league')}}else start()};
 $('pset').onclick=()=>openSet('pause');$('pctl').onclick=()=>openCtl('pause');document.querySelectorAll('.tile[data-m]').forEach(b=>b.onclick=()=>{lgMode(false);mode=+b.dataset.m;renderSetup();show('setup')});$('h2go').onclick=go2;
-/* ---------- compte local ---------- */
-const ACK='hb27_acct';let ACC=null;try{ACC=JSON.parse(localStorage.getItem(ACK)||'null')}catch(e){}
-const hsh=async t=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('hb27|'+t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=5381;for(const c of'hb27|'+t)h=(h*33^c.charCodeAt(0))>>>0;return'd'+h}};
-const sesOK=()=>{try{return sessionStorage.getItem('hb27_ses')==='1'}catch(e){return false}},sesSet=v=>{try{v?sessionStorage.setItem('hb27_ses','1'):sessionStorage.removeItem('hb27_ses')}catch(e){}},accSave=()=>{try{localStorage.setItem(ACK,JSON.stringify(ACC))}catch(e){}};
+/* ---------- compte en ligne (serveur Vercel + Supabase) ---------- */
+const TK='hb27_tok';let ACC=null,TOK='',accMode=0,OFFL=false;try{TOK=localStorage.getItem(TK)||''}catch(e){}
+const tokSave=t=>{TOK=t||'';try{t?localStorage.setItem(TK,t):localStorage.removeItem(TK)}catch(e){}};
+async function api(a,d){const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOK},body:JSON.stringify(Object.assign({a},d||{}))});let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error(j.error||'Erreur serveur'),{status:r.status});return j}
+const setUser=u=>{ACC=u?{n:u.pseudo,av:u.av||'',role:u.role,pts:u.points,pl:u.played}:null;setAvt()};
 function setAvt(){const a=$('avt');a.style.backgroundImage=ACC&&ACC.av?`url(${ACC.av})`:'';a.textContent=ACC&&!ACC.av?ACC.n[0].toUpperCase():'';$('avn').textContent=ACC?ACC.n:''}
-function renderAcc(){const c=!ACC;$('accT').textContent=c?'CRÉE TON COMPTE':'BON RETOUR, '+ACC.n.toUpperCase();$('accP').style.display=$('accW2').style.display=c?'':'none';$('accSw').style.display=c?'none':'';$('accW').value=$('accP').value=$('accW2').value='';$('accE').textContent=c?'Ton pseudo et ton mot de passe restent sur cet appareil.':''}
-function afterLoad(){setAvt();if(ACC&&sesOK())show('menu');else{renderAcc();show('acc');setTimeout(()=>(ACC?$('accW'):$('accP')).focus(),100)}}
-$('accGo').onclick=async()=>{const w=$('accW').value,e=$('accE');
-  if(!ACC){const n=$('accP').value.trim();if(n.length<3)return e.textContent='Pseudo : 3 caractères minimum.';if(w.length<4)return e.textContent='Mot de passe : 4 caractères minimum.';if(w!==$('accW2').value)return e.textContent='Les deux mots de passe sont différents.';ACC={n,h:await hsh(w),av:''};accSave()}
-  else if(await hsh(w)!==ACC.h)return e.textContent='Mot de passe incorrect.';
-  sesSet(true);setAvt();show('menu')};
+function renderAcc(m){if(m!=null)accMode=m;const c=accMode===0;$('accT').textContent=c?'CRÉE TON COMPTE':'CONNEXION';$('accW2').style.display=c?'':'none';$('accSw').textContent=c?'J\'ai déjà un compte':'Créer un compte';$('accOff').style.display='none';$('accW').value=$('accP').value=$('accW2').value='';$('accE').textContent=c?'Un seul compte, valable sur tous tes appareils.':'Entre ton pseudo et ton mot de passe.';$('accGo').disabled=false}
+function toAcc(m){renderAcc(m);show('acc');setTimeout(()=>$('accP').focus(),100)}
+async function afterLoad(){if(TOK){try{const j=await api('me');setUser(j.user);return show('menu')}catch(e){if(e.status===401||e.status===403)tokSave('');else{/* serveur injoignable : on propose le mode hors ligne */}}}
+  toAcc(0);if(TOK){$('accE').textContent='Serveur injoignable pour l\'instant.';$('accOff').style.display=''}}
+$('accGo').onclick=async()=>{const n=$('accP').value.trim(),w=$('accW').value,e=$('accE'),b=$('accGo');
+  if(n.length<3)return e.textContent='Pseudo : 3 caractères minimum.';if(w.length<6)return e.textContent='Mot de passe : 6 caractères minimum.';
+  if(accMode===0&&w!==$('accW2').value)return e.textContent='Les deux mots de passe sont différents.';
+  b.disabled=true;e.textContent='Connexion au serveur…';
+  try{const j=await api(accMode===0?'register':'login',{pseudo:n,password:w});tokSave(j.token);setUser(j.user);OFFL=false;show('menu')}
+  catch(x){e.textContent=x.status?x.message:'Serveur injoignable : vérifie ta connexion.';if(!x.status)$('accOff').style.display=''}b.disabled=false};
+$('accOff').onclick=()=>{OFFL=true;tokSave('');ACC={n:'Invité',av:'',role:'player'};setAvt();show('menu')};
 document.querySelectorAll('#acc input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')$('accGo').click()}));
-let swc=0;$('accSw').onclick=()=>{const b=$('accSw');if(!swc){swc=1;b.textContent='Confirmer ? (efface le compte)';setTimeout(()=>{swc=0;b.textContent='Changer de compte'},3000);return}swc=0;b.textContent='Changer de compte';try{localStorage.removeItem(ACK)}catch(e){}ACC=null;setAvt();renderAcc()};
+$('accSw').onclick=()=>renderAcc(accMode?0:1);
 $('avt').onclick=()=>openSet('menu');
-$('spOut').onclick=()=>{sesSet(false);renderAcc();show('acc')};$('spPh').onclick=()=>$('spF').click();
-$('spF').onchange=e=>{const fl=e.target.files[0];if(!fl||!ACC)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=128;const m=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);ACC.av=c.toDataURL('image/jpeg',.82);accSave();setAvt()};im.src=URL.createObjectURL(fl)};
-$('nOn').onclick=()=>{$('onSt').textContent=(ACC?ACC.n:'')+' · serveur non connecté';show('online')};$('onBack').onclick=()=>show('menu');
+$('spOut').onclick=()=>{tokSave('');ACC=null;OFFL=false;setAvt();toAcc(1)};$('spPh').onclick=()=>$('spF').click();
+$('spF').onchange=e=>{const fl=e.target.files[0];if(!fl||!ACC)return;const im=new Image();im.onload=async()=>{const c=document.createElement('canvas');c.width=c.height=128;const m=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);const v=c.toDataURL('image/jpeg',.82);
+  if(!OFFL){try{await api('avatar',{av:v})}catch(x){$('spPh').textContent=x.status?x.message:'Hors connexion';setTimeout(()=>$('spPh').textContent='Changer la photo',2200);return}}
+  ACC.av=v;setAvt()};im.src=URL.createObjectURL(fl);e.target.value=''};
+$('nOn').onclick=()=>{$('onSt').textContent=(ACC?ACC.n:'')+(OFFL?' · hors ligne':' · connecté');show('online')};$('onBack').onclick=()=>show('menu');
 document.querySelectorAll('.onb').forEach(b=>b.onclick=()=>{$('onSt').textContent='Bientôt disponible : il faut d\'abord brancher un serveur en ligne'});let nwc=0;
 $('lgSave').onclick=()=>{const b=$('lgSave'),ok=lgSave();b.textContent=ok?'Sauvegardé ✓':'Échec : stockage bloqué';setTimeout(()=>b.textContent='Sauvegarder',1800)};
 $('lgNew').onclick=()=>{const b=$('lgNew');if(!nwc){nwc=1;b.textContent='Confirmer ? (efface la sauvegarde)';setTimeout(()=>{nwc=0;b.textContent='Nouvelle carrière'},3000);return}
