@@ -1,0 +1,10 @@
+const crypto=require('crypto');
+const {SUPABASE_URL:U,SUPABASE_SERVICE_KEY:K,TOKEN_SECRET:S,ADMIN_PSEUDO}=process.env;
+const AP=(ADMIN_PSEUDO||'Noln_mry').toLowerCase();
+const sb=async(p,o={})=>{const r=await fetch(`${U}/rest/v1/${p}`,{method:o.method||'GET',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'return=representation'},body:o.body?JSON.stringify(o.body):undefined});
+  const t=await r.text();if(!r.ok)throw Object.assign(new Error(t),{status:r.status});return t?JSON.parse(t):[]};
+const hash=(pw,salt)=>crypto.scryptSync(pw,salt,32).toString('hex');
+const mac=b=>crypto.createHmac('sha256',S).update(b).digest('hex');
+const sign=id=>{const b=id+'.'+(Date.now()+30*864e5);return b+'.'+mac(b)};
+const verify=t=>{const [id,e,m]=(t||'').split('.');if(!m)return null;const ok=mac(id+'.'+e);return m.length===ok.length&&crypto.timingSafeEqual(Buffer.from(m),Buffer.from(ok))&&+e>Date.now()?id:null};
+module.exports={sb,hash,sign,verify,AP,crypto};
