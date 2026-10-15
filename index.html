@@ -118,6 +118,10 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 .tile.img.big{background-image:linear-gradient(180deg,rgba(4,7,15,0) 40%,rgba(4,7,15,.85)),linear-gradient(110deg,rgba(30,123,255,.35),rgba(4,7,15,0) 60%),var(--img)}
 .tile.img small{color:#dbe8ff;text-shadow:0 1px 6px #000}.tile.img b{text-shadow:0 2px 10px #000}
 .crest{width:100%;display:block}
+.tiles{grid-template-columns:1.5fr 1fr 1fr 1fr}.tile.wide{grid-column:span 2}.lg #t1 .ar,.lk #t0 .ar{display:none}
+#ltab{max-height:60vh;overflow:auto;width:min(88vw,780px)}#ltab table{width:100%;border-collapse:collapse;font-size:clamp(11px,2.1vh,18px)}
+#ltab th{color:var(--mute);letter-spacing:.14em;font-weight:500;text-align:center}#ltab td,#ltab th{padding:.25vh 8px;text-align:center;border-bottom:1px solid rgba(142,160,189,.15)}#ltab td:nth-child(2),#ltab th:nth-child(2){text-align:left}
+#ltab tr.me{background:rgba(30,123,255,.35)}#ltab tr:nth-child(2) td:first-child{color:#f2c230;font-weight:800}
 </style>
 </head>
 <body>
@@ -143,6 +147,7 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
     <button class="tile img" data-m="2" style="--img:url(menu_art.png);--sz:420% auto;--pos:16% 72%"><b>2 JOUEURS</b><small>2 manettes ou clavier</small></button>
     <button class="tile img" id="nCtl" style="--img:url(menu_art.png);--sz:400% auto;--pos:100% 62%"><b>COMMANDES</b><small>Voir les touches</small></button>
     <button class="tile img" id="nSet" style="--img:url(menu_art.png);--sz:380% auto;--pos:2% 0%"><b>RÉGLAGES</b><small>Son · caméra · musique</small></button>
+    <button class="tile img wide" id="nLg" style="--img:url(menu_art.png);--sz:300% auto;--pos:60% 55%"><b>CHAMPIONNAT</b><small>Saison Liqui Moly StarLigue · 16 clubs</small></button>
     <button class="tile img" id="fs" style="--img:url(menu_art.png);--sz:320% auto;--pos:92% 22%"><b>PLEIN ÉCRAN</b><small>Immersion totale</small></button>
   </div>
   <button id="play" hidden></button>
@@ -156,6 +161,8 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
   <div class="set"><div><label>Durée du match</label><div class="seg" id="sdur"></div></div><div><label>Difficulté</label><div class="seg" id="sdif"></div></div></div>
   <div class="mini"><button id="sback">Retour</button><button class="go" id="sgo">JOUER</button></div>
 </div></section>
+
+<section id="league" class="scr"><div class="srow"><h2>CHAMPIONNAT</h2><div class="sub" id="lgSub"></div><div id="ltab"></div><div class="mini"><button id="lgBack" data-back>MENU</button><button class="go" id="lgPlay">JOUER</button></div></div></section>
 
 <section id="settings" class="scr"><div class="srow">
   <h2>RÉGLAGES</h2>
@@ -196,13 +203,13 @@ let mode=1,state='menu',P=[],ball,score=[0,0],clock=240,gt=0,conc=0,banner='',ct
 if('ontouchstart' in window||navigator.maxTouchPoints>0)document.body.classList.add('touch');
 const CFG=Object.assign({vol:2,trk:0,sfx:1,cam:1,hint:1},(()=>{try{return JSON.parse(localStorage.getItem('hb27')||'{}')}catch(e){return{}}})());
 let ST=[{},{}],it=0,poss=-1,pc=0,pmsg=0,lt=0;const clrB=()=>{B[0].p=B[0].s=B[0].w=B[1].p=B[1].s=B[1].w=0};const resetST=()=>{ST=[0,1].map(()=>({sh:0,on:0,ps:0,pos:0,sv:0}))};resetST();
-const RAT=[[88,86,87,90],[80,79,82,84],[84,83,82,85],[81,82,80,83],[79,80,78,82],[77,78,80,79]],rat=i=>'ATT '+RAT[i][0]+' · MIL '+RAT[i][1]+' · DEF '+RAT[i][2]+' · GAR '+RAT[i][3];
+let RAT=[],rat=i=>'ATT '+RAT[i][0]+' · MIL '+RAT[i][1]+' · DEF '+RAT[i][2]+' · GAR '+RAT[i][3];
 const save=()=>{try{localStorage.setItem('hb27',JSON.stringify(CFG))}catch(e){}};
 
 /* ---------- chargement ---------- */
 (function(){
   let p=0,t0=performance.now();
-  const ready=document.fonts?document.fonts.ready:Promise.resolve();let fr=false;ready.then(()=>fr=true);
+  const ready=document.fonts?document.fonts.ready:Promise.resolve();let fr=false;ready.then(()=>fr=true);setTimeout(()=>fr=true,3500);
   function step(now){
     const target=Math.min(1,(now-t0)/3200);
     p=Math.min(target,fr?1:.9);
@@ -216,21 +223,38 @@ const save=()=>{try{localStorage.setItem('hb27',JSON.stringify(CFG))}catch(e){}}
 function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));state=id==='game'?state:id}
 
 /* ---------- sélection d'équipes ---------- */
-const TEAMS=[{name:'PARIS',full:'Paris Saint-Germain',col:'#0a1f44',tr:'#d7263d',nc:'#fff',gk:'#34c38f',players:[{n:'Løvkvist',num:1},{n:'Steins',num:6},{n:'Syprzak',num:21},{n:'Prandi',num:71}]},{name:'CHAMBÉRY',full:'Chambéry Savoie Mont-Blanc',col:'#f2c230',tr:'#111',nc:'#111',gk:'#1b2433',players:[{n:'Rodríguez',num:1},{n:'Traoré',num:3},{n:'Jóhannsson',num:5},{n:'Pettersen',num:17}]},{name:'MONTPELLIER',full:'Montpellier Handball',col:'#1b3a8a',tr:'#f2f5fa',nc:'#fff',gk:'#f2c230',players:[{n:'Garnier',num:16},{n:'Lefèvre',num:7},{n:'Costa',num:9},{n:'Moreau',num:22}]},{name:'NANTES',full:'HBC Nantes',col:'#1f8a4c',tr:'#f2f5fa',nc:'#fff',gk:'#d7263d',players:[{n:'Perrin',num:1},{n:'Hamel',num:5},{n:'Duval',num:10},{n:'Roche',num:14}]},{name:'AIX',full:'Pays d\'Aix UC',col:'#7a1f2b',tr:'#f2c230',nc:'#fff',gk:'#34c38f',players:[{n:'Blanc',num:12},{n:'Girard',num:3},{n:'Faure',num:8},{n:'Vidal',num:19}]},{name:'NÎMES',full:'USAM Nîmes Gard',col:'#e8edf5',tr:'#d7263d',nc:'#111',gk:'#1b2433',players:[{n:'Caron',num:30},{n:'Mercier',num:2},{n:'Lopez',num:6},{n:'Benoit',num:11}]}];
+const TD=[['PARIS','Paris Saint-Germain','#0a1f44','#d7263d','#fff','#34c38f',[90,88,88,91]],['MONTPELLIER','Montpellier Handball','#1b3a8a','#f2f5fa','#fff','#f2c230',[86,85,85,88]],['NANTES','HBC Nantes','#1f8a4c','#f2f5fa','#fff','#d7263d',[85,84,84,86]],['CHAMBÉRY','Chambéry Savoie Mont-Blanc','#f2c230','#111','#111','#1b2433',[81,80,80,82]],['AIX','Pays d\'Aix UC','#7a1f2b','#f2c230','#fff','#34c38f',[80,80,79,81]],['NÎMES','USAM Nîmes Gard','#e8edf5','#d7263d','#111','#1b2433',[79,79,79,80]],['DUNKERQUE','USDK Handball','#1d4fa3','#f2c230','#fff','#d7263d',[78,78,77,79]],['ST-RAPHAËL','Saint-Raphaël Var HB','#c8102e','#111','#fff','#f2c230',[77,77,77,78]],['TOULOUSE','Fenix Toulouse HB','#5b2a86','#f58220','#fff','#34c38f',[76,76,76,77]],['CESSON','Cesson-Rennes MHB','#9b1b30','#111','#fff','#f2c230',[75,74,75,76]],['LIMOGES','Limoges Handball','#14746f','#f2f5fa','#fff','#d7263d',[73,74,73,75]],['ISTRES','Istres Provence HB','#1f6fd1','#f2f5fa','#fff','#f2c230',[73,73,72,74]],['CHARTRES','C\'Chartres MHB','#d9531e','#111','#fff','#1b2433',[72,72,72,73]],['TREMBLAY','Tremblay-en-France HB','#e03a3e','#f2f5fa','#fff','#34c38f',[71,72,71,72]],['CRÉTEIL','US Créteil Handball','#2a3f8f','#d7263d','#fff','#f2c230',[70,71,70,72]],['DIJON','Dijon Métropole HB','#e0242b','#111','#fff','#34c38f',[70,70,70,71]]];
+const SUR='Martin Bernard Dubois Thomas Robert Richard Petit Durand Leroy Moreau Simon Laurent Lefebvre Michel Garcia David Bertrand Roux Vincent Fournier Morel Girard André Mercier Dupont Lambert Bonnet François Martinez Legrand Garnier Faure Rousseau Blanc Guerin Muller Henry Roussel Nicolas Perrin Morin Mathieu Clément Gauthier Dumont Lopez Fontaine Chevalier Robin Masson Sanchez Gérard Nguyen Boyer Denis Lemaire Duval Joly Gautier Roger Roche Roy Noel Meyer'.split(' ');
+const TEAMS=TD.map((d,k)=>({name:d[0],full:d[1],col:d[2],tr:d[3],nc:d[4],gk:d[5],players:[[1,16,12,30][k%4],3+k%4,7+k%3,10+k%5].map((num,i)=>({n:SUR[k*4+i],num}))}));RAT=TD.map(d=>d[6]);
+/* ---------- championnat ---------- */
+const LG={on:false,club:0,wk:0,t:null},LGN=TEAMS.length-1,lgMode=v=>{LG.on=v;document.body.classList.toggle('lg',v)};
+function lgReset(){LG.t=TEAMS.map(()=>({w:0,d:0,l:0,f:0,a:0}));LG.wk=0}lgReset();
+function lgPairs(r){const n=TEAMS.length,q=[0];for(let i=0;i<n-1;i++)q.push(1+(i+r)%(n-1));return Array.from({length:n/2},(_,i)=>[q[i],q[n-1-i]])}
+const lgOpp=c=>{const p=lgPairs(LG.wk%LGN).find(p=>p.includes(c));return p[0]===c?p[1]:p[0]};
+function lgRec(a,b,x,y){const A=LG.t[a],B=LG.t[b];A.f+=x;A.a+=y;B.f+=y;B.a+=x;if(x>y){A.w++;B.l++}else if(x<y){B.w++;A.l++}else{A.d++;B.d++}}
+function lgSim(c){const ov=i=>RAT[i].reduce((s,v)=>s+v,0)/4;for(const[a,b]of lgPairs(LG.wk%LGN)){if(a===c||b===c)continue;lgRec(a,b,Math.round(rnd(24,30)+(ov(a)-ov(b))*.45+rnd(-3,3)),Math.round(rnd(24,30)+(ov(b)-ov(a))*.45+rnd(-3,3)))}}
+const lgPts=t=>t.w*3+t.d*2+t.l,lgSort=()=>TEAMS.map((_,i)=>i).sort((a,b)=>{const A=LG.t[a],B=LG.t[b];return lgPts(B)-lgPts(A)||(B.f-B.a)-(A.f-A.a)||B.f-A.f});
+function renderLg(){const o=lgSort(),done=LG.wk>=LGN,op=done?null:lgOpp(LG.club);
+  $('ltab').innerHTML='<table><tr><th>#</th><th>CLUB</th><th>J</th><th>V</th><th>N</th><th>D</th><th>+/-</th><th>PTS</th></tr>'+o.map((i,r)=>{const t=LG.t[i];return `<tr class="${i===LG.club?'me':''}"><td>${r+1}</td><td>${TEAMS[i].name}</td><td>${t.w+t.d+t.l}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.f-t.a}</td><td><b>${lgPts(t)}</b></td></tr>`}).join('')+'</table>';
+  $('lgSub').textContent='LIQUI MOLY STARLIGUE · '+(done?'SAISON TERMINÉE':'JOURNÉE '+(LG.wk+1)+' / '+LGN);$('lgPlay').textContent=done?'NOUVELLE SAISON':'JOUER · vs '+TEAMS[op].name}
+function lgPlay(){if(LG.wk>=LGN)lgReset();sel[0]=LG.club;sel[1]=lgOpp(LG.club);mode=1;renderSetup();show('setup')}
+function lgAfter(){const A=$('again'),M=$('tomenu');if(!LG.on){A.textContent='Rejouer';M.textContent='Menu';return}
+  lgRec(LG.club,lgOpp(LG.club),score[0],score[1]);lgSim(LG.club);LG.wk++;const r=lgSort().indexOf(LG.club)+1;
+  $('ep').textContent+=' · J'+LG.wk+' · '+r+(r==1?'er':'e');A.textContent=LG.wk<LGN?'Journée suivante':'Fin de saison';M.textContent='Classement'}
 const NC=['#fff','#111'];let flip=false,half2=false,ht=0,total=240;const PL=p=>TEAMS[sel[p.t]].players[p.i];
 const DURS=[2,4,6,10],DIF=[{n:'Amateur',bs:.85,shot:2,save:.4},{n:'Pro',bs:1,shot:3,save:.55},{n:'Légende',bs:1.12,shot:4,save:.68}];
 let dif=1,dur=4,sel=[0,1];
 const crest=T=>`<svg viewBox="0 0 100 120" class="crest" aria-hidden="true"><path d="M10 10h80v55c0 28-24 42-40 48C34 107 10 93 10 65z" fill="${T.col}" stroke="#f2f5fa" stroke-width="5"/><path d="M10 10h80v22H10z" fill="${T.tr}"/><text x="50" y="80" text-anchor="middle" font-size="30" font-weight="800" font-style="italic" fill="${T.nc}" font-family="Barlow Condensed,Impact,sans-serif">${T.name.slice(0,3)}</text></svg>`;
 const shirt=(c,t)=>`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M30 12 L10 28 L20 46 L30 40 L30 90 L70 90 L70 40 L80 46 L90 28 L70 12 Q50 26 30 12Z" fill="${c}" stroke="#f2f5fa" stroke-width="2.5"/><rect x="30" y="52" width="40" height="8" fill="${t}"/></svg>`;
-function card(i){const T=TEAMS[sel[i]],lab=mode==2?(i?'JOUEUR 2':'JOUEUR 1'):(i?'BOT':'TOI');
+function card(i){const T=TEAMS[sel[i]],lab=mode==2?(i?'JOUEUR 2':'JOUEUR 1'):(i?(LG.on?'JOURNÉE '+(LG.wk+1):'BOT'):'TOI');
   return `<button class="ar" data-i="${i}" data-d="-1" aria-label="Équipe précédente">‹</button><div class="kit">${crest(T)}</div><div class="kit">${shirt(T.col,T.tr)}</div><b>${T.name}</b><small>${T.full}</small><small>${rat(sel[i])}</small><span class="ro">${T.players.slice(1).map(q=>q.n).join(' · ')} · ${T.players[0].n} (G)</span><em>${lab}</em><button class="ar" data-i="${i}" data-d="1" aria-label="Équipe suivante">›</button>`}
 function seg(id,items,get,set){const el=$(id);el.innerHTML='';items.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.className=get()==i?'sel':'';b.onclick=()=>{set(i);seg(id,items,get,set)};el.appendChild(b)})}
-function renderSetup(){$('t0').innerHTML=card(0);$('t1').innerHTML=card(1);
+function renderSetup(){document.body.classList.toggle('lk',LG.on&&LG.wk>0);$('t0').innerHTML=card(0);$('t1').innerHTML=card(1);
   seg('sdur',DURS.map(x=>x+' min'),()=>DURS.indexOf(dur),i=>dur=DURS[i]);seg('sdif',DIF.map(d=>d.n),()=>dif,i=>dif=i)}
 $('setup').addEventListener('click',e=>{const b=e.target.closest('.ar');if(!b)return;const i=+b.dataset.i,d=+b.dataset.d,n=TEAMS.length;
-  sel[i]=(sel[i]+d+n)%n;if(sel[i]==sel[1-i])sel[1-i]=(sel[1-i]+d+n)%n;renderSetup()});
+  if(LG.on){if(LG.wk)return;sel[0]=(sel[0]+d+n)%n;sel[1]=lgOpp(sel[0])}else{sel[i]=(sel[i]+d+n)%n;if(sel[i]==sel[1-i])sel[1-i]=(sel[1-i]+d+n)%n}renderSetup()});
 function applyTeams(){for(let t=0;t<2;t++){const T=TEAMS[sel[t]];COL[t]=T.col;TR[t]=T.tr;GKC[t]=T.gk;NC[t]=T.nc;NAME[t]=T.name}}
-$('sback').onclick=()=>show('menu');$('sgo').onclick=()=>start();
+$('sback').onclick=()=>LG.on&&LG.wk?(renderLg(),show('league')):show('menu');$('sgo').onclick=()=>start();
 
 /* ---------- musique & bruitages (synthétisés, sans fichier) ---------- */
 const MU={a:null,g:null,on:true,n:0,t:0,nb:null,k:0};
@@ -269,8 +293,8 @@ function toggleFs(){if(document.fullscreenElement)document.exitFullscreen();else
 function updPads(){const n=gps().length;$('pads').textContent=n?n+' manette'+(n>1?'s':'')+' détectée'+(n>1?'s':''):'Aucune manette détectée'}
 addEventListener('gamepadconnected',updPads);addEventListener('gamepaddisconnected',updPads);
 const toMenu=()=>{$('pause').style.display='none';$('end').style.display='none';state='menu';show('menu')};
-$('quit').onclick=togglePause;$('presume').onclick=togglePause;$('tomenu').onclick=toMenu;$('pq').onclick=toMenu;$('again').onclick=()=>start();
-$('pset').onclick=()=>openSet('pause');$('pctl').onclick=()=>openCtl('pause');document.querySelectorAll('.tile[data-m]').forEach(b=>b.onclick=()=>{mode=+b.dataset.m;renderSetup();show('setup')});$('nSet').onclick=()=>openSet('menu');$('nCtl').onclick=()=>openCtl('menu');
+$('quit').onclick=togglePause;$('presume').onclick=togglePause;$('tomenu').onclick=()=>{if(LG.on&&LG.wk){$('end').style.display='none';renderLg();show('league')}else toMenu()};$('pq').onclick=toMenu;$('again').onclick=()=>{if(LG.on){$('end').style.display='none';if(LG.wk<LGN)lgPlay();else{renderLg();show('league')}}else start()};
+$('pset').onclick=()=>openSet('pause');$('pctl').onclick=()=>openCtl('pause');document.querySelectorAll('.tile[data-m]').forEach(b=>b.onclick=()=>{lgMode(false);mode=+b.dataset.m;renderSetup();show('setup')});$('nSet').onclick=()=>openSet('menu');$('nLg').onclick=()=>{lgMode(true);mode=1;if(LG.wk)(renderLg(),show('league'));else lgPlay()};$('lgPlay').onclick=lgPlay;$('lgBack').onclick=()=>{lgMode(false);show('menu')};$('nCtl').onclick=()=>openCtl('menu');
 
 /* ---------- entrées ---------- */
 const K={},B=[{p:0,s:0,w:0},{p:0,s:0,w:0}],PP=[[],[]],joy={x:0,y:0,on:false};
@@ -302,7 +326,7 @@ function axis(t){let x=0,y=0;for(const k of(mode==1&&t==0?KS:[KS[t]])){x+=(K[k.r
 })();
 
 /* ---------- partie ---------- */
-function start(){poss=-1;pc=0;pmsg=0;$('pause').style.display='none';applyTeams();score=[0,0];clock=dur*60;total=clock;flip=false;half2=false;setTimeout(()=>sfx('whistle'),250);reset(0);state='play';banner='';$('end').style.display='none';show('game');state='intro';it=2.6;resetST();fit()}
+function start(){if(LG.on)LG.club=sel[0];poss=-1;pc=0;pmsg=0;$('pause').style.display='none';applyTeams();score=[0,0];clock=dur*60;total=clock;flip=false;half2=false;setTimeout(()=>sfx('whistle'),250);reset(0);state='play';banner='';$('end').style.display='none';show('game');state='intro';it=2.6;resetST();fit()}
 function reset(k){
   P=[];for(let t=0;t<2;t++)HOME.forEach((h,i)=>{const x=t?W-h[0]:h[0];P.push({t,i,x,y:h[1],hx:x,hy:h[1],fx:t?-1:1,fy:0,cd:0,hold:0,ph:0,jt:0,z:0,spd:0})});
   const c=P[k*4+2];c.x=W/2+(k?.8:-.8);c.y=H/2;ball={x:c.x,y:c.y,vx:0,vy:0,own:c,from:k,rolled:false,z:1.15,vz:0,g:7,rot:0};ctl=[2,2];
@@ -384,7 +408,7 @@ function update(dt){
   }
   B[0].p=B[0].s=B[0].w=B[1].p=B[1].s=B[1].w=0;
 }
-function finish(){state='end';const a=score[0],b=score[1];
+function finish(){finish0();lgAfter()}function finish0(){state='end';const a=score[0],b=score[1];
   $('eh').textContent=a==b?'ÉGALITÉ':'VICTOIRE '+(a>b?NAME[0]:NAME[1]);$('ep').textContent=a+' – '+b;$('end').style.display='flex';
   const t0=ST[0].pos,t1=ST[1].pos,p0=Math.round(t0/((t0+t1)||1)*100),R=(l,x,y,pc)=>{const t=(x+y)||1;return `<div class="st"><b>${x}${pc?'%':''}</b><div><small>${l}</small><i><u style="width:${x/t*100}%;background:#1e7bff"></u><u style="width:${y/t*100}%;background:#d7263d"></u></i></div><b>${y}${pc?'%':''}</b></div>`};
   $('stats').innerHTML=R('Possession',p0,100-p0,1)+R('Tirs',ST[0].sh,ST[1].sh)+R('Tirs cadrés',ST[0].on,ST[1].on)+R('Arrêts',ST[0].sv,ST[1].sv)+R('Passes',ST[0].ps,ST[1].ps)}
@@ -413,12 +437,12 @@ function man(p){
   if(human(p.t)&&p.i>0&&ctl[p.t]==p.i){ctx.strokeStyle='#fff';ctx.lineWidth=lw*1.6;ctx.shadowColor='#1e7bff';ctx.shadowBlur=u*.6;ctx.beginPath();ctx.ellipse(X,Yg,u*.72,u*.26,0,0,7);ctx.stroke();ctx.shadowBlur=0}
   const hip=[X,Y-u*.95],sh=[X+dir*u*(.04+.1*Math.min(1,(p.spd||0)/6)),Y-u*1.52];
   const leg=s=>{const lift=Math.max(0,s)*u*.22,foot=[X+dir*s*u*.4,Y-lift-u*.04],knee=[X+dir*(s*.22+.08*sp)*u,Y-u*.5-lift*.5];
-    limb(hip,knee,foot,sk,u*.13);limb(hip,[(hip[0]+knee[0])/2,(hip[1]+knee[1])/2],knee,'#0a1630',u*.2);
+    limb(hip,knee,foot,sk,u*.13);limb(hip,[(hip[0]+knee[0])/2,(hip[1]+knee[1])/2],knee,shade(jc,-.5),u*.2);
     ctx.fillStyle='#f2f5fa';ctx.beginPath();ctx.ellipse(foot[0]+dir*u*.05,foot[1],u*.12,u*.05,0,0,7);ctx.fill()};
   leg(-sw);leg(sw);
   const arm=(hand,front)=>{const el=[(sh[0]+hand[0])/2-dir*u*.04,(sh[1]+hand[1])/2+u*.04];limb(sh,el,hand,sk,u*.1);ctx.strokeStyle=jc;ctx.lineWidth=u*.15;ctx.beginPath();ctx.moveTo(sh[0],sh[1]);ctx.lineTo(sh[0]+(el[0]-sh[0])*.5,sh[1]+(el[1]-sh[1])*.5);ctx.stroke()};
   arm(cel?[sh[0]-dir*u*.2,sh[1]-u*.62]:[sh[0]-dir*sw*u*.35,sh[1]+u*.55],0);
-  {const gr=ctx.createLinearGradient(sh[0]-u*.23,0,sh[0]+u*.23,0);gr.addColorStop(0,shade(jc,.22));gr.addColorStop(.6,jc);gr.addColorStop(1,shade(jc,-.32));ctx.fillStyle=gr}ctx.beginPath();ctx.moveTo(sh[0]-u*.23,sh[1]);ctx.lineTo(sh[0]+u*.23,sh[1]);ctx.lineTo(hip[0]+u*.18,hip[1]+u*.04);ctx.lineTo(hip[0]-u*.18,hip[1]+u*.04);ctx.closePath();ctx.fill();
+  {const gr=ctx.createLinearGradient(sh[0]-u*.23,0,sh[0]+u*.23,0);gr.addColorStop(0,shade(jc,.22));gr.addColorStop(.6,jc);gr.addColorStop(1,shade(jc,-.32));ctx.fillStyle=gr}ctx.beginPath();ctx.moveTo(sh[0]-u*.23,sh[1]);ctx.lineTo(sh[0]+u*.23,sh[1]);ctx.lineTo(hip[0]+u*.18,hip[1]+u*.04);ctx.lineTo(hip[0]-u*.18,hip[1]+u*.04);ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(0,0,0,.45)';ctx.lineWidth=lw*.8;ctx.stroke();
   ctx.fillStyle=p.i==0?'rgba(255,255,255,.2)':TR[p.t];ctx.fillRect(sh[0]-u*.23,sh[1]+u*.12,u*.46,u*.08);
   ctx.fillStyle=p.i==0?'#fff':NC[p.t];ctx.font=`800 ${u*.34}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(PL(p).num,X,(sh[1]+hip[1])/2+u*.02);
   let hand;
@@ -457,8 +481,8 @@ function draw(now){
   for(let i=0;i<5;i++)ctx.fillText(i%2?'LIVE IT':'HB27',pj(4+i*8,-1.3,.5)[0],bp[1]);
   // sol
   poly([[-1.6,-1.2],[W+1.6,-1.2],[W+1.6,H+1.4],[-1.6,H+1.4]],'#0b2350');
-  const fg=ctx.createLinearGradient(0,y0,0,y0+Hh);fg.addColorStop(0,'#123a78');fg.addColorStop(1,'#1f5aa6');poly([[0,0],[W,0],[W,H],[0,H]],fg);
-  for(let i=1;i<20;i++)poly([[i*2,0],[i*2,H]],null,'rgba(255,255,255,.035)',1);
+  const fg=ctx.createLinearGradient(0,y0,0,y0+Hh);fg.addColorStop(0,'#8a5a30');fg.addColorStop(1,'#c48a52');poly([[0,0],[W,0],[W,H],[0,H]],fg);
+  for(let i=1;i<40;i++)poly([[i,0],[i,H]],null,i%2?'rgba(40,20,5,.14)':'rgba(255,220,170,.08)',1);for(let j=1;j<10;j++)poly([[0,j*2],[W,j*2]],null,'rgba(40,20,5,.10)',1);
   {const c=pj(W/2,H/2);ctx.save();ctx.translate(c[0],c[1]);ctx.scale(1,.34);ctx.fillStyle='rgba(242,245,250,.14)';ctx.font=`italic 800 ${c[2]*3.2}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('HB27',0,0);ctx.restore();
    poly(Array.from({length:41},(_,i)=>[W/2+Math.cos(i/40*6.2832)*2,H/2+Math.sin(i/40*6.2832)*2]),null,'rgba(242,245,250,.5)',lw)}
   const L=pj(W/2,H*.45),rg=ctx.createRadialGradient(L[0],L[1],0,L[0],L[1],w*.45);rg.addColorStop(0,'rgba(180,215,255,.22)');rg.addColorStop(1,'rgba(180,215,255,0)');ctx.fillStyle=rg;ctx.fillRect(0,y0-10,w,Hh+20);
@@ -470,7 +494,7 @@ function draw(now){
     for(let k=1;k<6;k++){const yy=y1+(y2-y1)*k/6;poly([[xb,yy,0],[xb,yy,2]],null,'rgba(255,255,255,.2)',1)}
     for(let k=1;k<4;k++)poly([[xb,y1,k/2],[xb,y2,k/2]],null,'rgba(255,255,255,.2)',1);
     poly([[xs,y1,2],[xb,y1,2]],null,'rgba(255,255,255,.3)',1);poly([[xs,y2,2],[xb,y2,2]],null,'rgba(255,255,255,.3)',1);
-    poly([[xs,y1,0],[xs,y1,2],[xs,y2,2],[xs,y2,0]],null,'#f2f5fa',lw*2);}
+    poly([[xs,y1,0],[xs,y1,2],[xs,y2,2],[xs,y2,0]],null,'#f2f5fa',lw*2);ctx.setLineDash([lw*5,lw*5]);poly([[xs,y1,0],[xs,y1,2],[xs,y2,2],[xs,y2,0]],null,'#d7263d',lw*2);ctx.setLineDash([]);}
   for(const p of[...P].sort((a,b)=>a.y-b.y))man(p);
   drawBall();
   {const v=ctx.createRadialGradient(w/2,h*.55,h*.35,w/2,h*.55,h*.95);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.55)');ctx.fillStyle=v;ctx.fillRect(0,0,w,h)}
