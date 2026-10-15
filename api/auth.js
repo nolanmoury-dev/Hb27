@@ -40,4 +40,8 @@ module.exports=async(req,res)=>{
       if(b.a==='admin_unban'){await sb(`players?id=eq.${id}`,{method:'PATCH',body:{banned_until:null,fails:0,locked_until:null}});return res.json({ok:1})}
       if(b.a==='admin_delete'){await sb(`players?id=eq.${id}`,{method:'DELETE'});return res.json({ok:1})}
       return err(res,400,'Action inconnue')}}}
-  catch(e){console.error(e);return err(res,500,'Erreur serveur')}};
+  catch(e){console.error(e);
+    const miss=['SUPABASE_URL','SUPABASE_SERVICE_KEY','TOKEN_SECRET'].filter(k=>!(process.env[k]||'').trim());
+    if(miss.length)return err(res,500,'Variable manquante sur Vercel : '+miss.join(', ')+' (puis Redeploy)');
+    if(e.status)return err(res,500,'Supabase a répondu '+e.status+' : '+String(e.message).slice(0,160));
+    return err(res,500,'Erreur serveur : '+String(e.message).slice(0,120))}};
