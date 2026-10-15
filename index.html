@@ -157,6 +157,20 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 .avt{width:9vh;height:9vh;border-radius:50%;border:2px solid #f2f5fa;background:#0a1630 center/cover;font-weight:800;font-size:3.6vh;color:#fff;flex:none}.avn{font-weight:700;font-size:clamp(14px,2.6vh,22px);margin-left:-2.6vw;max-width:14vw;overflow:hidden;text-overflow:ellipsis}
 .accf{display:flex;flex-direction:column;gap:1.4vh;width:min(86vw,420px)}.accf input{padding:1.6vh 1.4vw;border-radius:8px;border:2px solid rgba(142,160,189,.4);background:rgba(10,22,48,.8);color:#fff;font:inherit;font-size:clamp(16px,2.8vh,24px)}.accf input:focus{outline:none;border-color:var(--blue)}
 .onb{cursor:pointer;color:inherit;font:inherit}.onb:hover,.onb.pf{border-color:var(--blue)}
+
+.zim{width:100%;height:17vh;border-radius:6px;background-size:cover;background-position:center;margin-bottom:.6vh}
+.cc.zc4{min-width:0;flex:1;padding:1.2vh 1vw;cursor:pointer}.zc4 b{font-size:clamp(17px,3.4vh,30px)}
+.zb{flex:1;overflow:auto;padding:1.6vh 2vw}
+.zr{display:grid;grid-template-columns:3vw 1fr 4vw 5vw 12vw 5vw 9vw;align-items:center;gap:.6vw;padding:.9vh .4vw;border-bottom:1px solid rgba(142,160,189,.15);font-size:clamp(13px,2.4vh,20px)}
+.zr.h{color:var(--mute);font-size:clamp(11px,1.8vh,15px)}.zr.me{background:rgba(30,123,255,.18)}
+.zr button,.zbt{padding:.6vh 1vw;border:1px solid rgba(142,160,189,.4);border-radius:5px;font-weight:700}
+.zcr{display:inline-block;width:3.2vh;height:3.2vh;border-radius:50%;vertical-align:middle;margin-right:.8vw;border:1px solid rgba(255,255,255,.3);flex:none}
+.zf u{display:inline-block;width:1.7vh;height:1.7vh;border-radius:50%;margin:0 .25vh}.zf .w{background:#2fbf5b}.zf .d{background:#8ea0bd}.zf .l{background:#d7263d}
+.zfm{display:grid;grid-template-columns:1fr 1fr;gap:1vh 2vw;align-items:center}
+.zfm input,.zfm select{padding:1vh 1vw;border-radius:6px;border:2px solid rgba(142,160,189,.4);background:rgba(10,22,48,.8);color:#fff;font:inherit;width:100%;min-width:0}
+.zfm input[type=color]{width:6vh;height:5vh;padding:0}
+.zpl{display:grid;grid-template-columns:1fr 1fr;gap:1vh 2vw;margin-top:2vh}.zpr{display:grid;grid-template-columns:3vw 1fr 6vw 9vw;gap:.6vw;align-items:center}
+.zar{display:flex;gap:.6vw;align-items:center;padding:.8vh 0;border-bottom:1px solid rgba(142,160,189,.15)}.zar b{min-width:14vw}.zar span{margin-left:auto;display:flex;gap:.4vw}.zar button{padding:.5vh .8vw;border:1px solid rgba(142,160,189,.4);border-radius:5px;font-size:clamp(11px,1.9vh,16px)}
 </style>
 </head>
 <body>
@@ -209,8 +223,21 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 
 <section id="online" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">En ligne</div></div>
 <div class="lgpanel"><div class="lgph"><i class="dot big" style="--a:#1e7bff;--b:#f2f5fa"></i><b>MODE EN LIGNE</b><span id="onSt"></span></div>
- <div class="chub" style="padding:5vh 2vw"><button class="cc onb"><small>MATCH CLASSÉ</small><b>PARTIE RAPIDE</b><small>Trouve un adversaire au hasard</small></button><button class="cc onb"><small>AMIS</small><b>SALON PRIVÉ</b><small>Joue contre un ami avec un code</small></button><button class="cc onb"><small>SAISON</small><b>CLASSEMENT</b><small>Les meilleurs joueurs</small></button></div></div>
+ <div class="chub" id="onHub" style="padding:3vh 1.5vw"></div></div>
 <div class="lgfoot"><button id="onBack" data-back>Retour</button></div></section>
+
+<section id="team" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">Mon équipe</div></div>
+<div class="lgpanel"><div class="lgph"><b>COMPÉTITIONS · 5 VS 5 + GARDIEN</b><span id="tmE"></span></div>
+<div class="zb"><div class="zfm"><input id="tmN" maxlength="20" placeholder="Nom d'équipe"><div style="display:flex;gap:1vw;align-items:center"><input id="tmC1" type="color"><input id="tmC2" type="color"><i class="zcr" id="tmCr"></i><button class="zbt" id="tmPh">Écusson / photo</button></div></div><input type="file" id="tmF" accept="image/*" hidden><div id="tmR" class="zpl"></div></div></div>
+<div class="lgfoot"><button id="tmBack">Retour</button><button class="go" id="tmGo">Enregistrer</button></div></section>
+
+<section id="board" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">Classement</div></div>
+<div class="lgpanel"><div class="lgph"><b>COMPÉTITIONS</b><span>Victoire 3 pts · Nul 1 pt · Défaite 0</span></div><div class="zb" id="bdL"></div></div>
+<div class="lgfoot"><button id="bdBack">Retour</button></div></section>
+
+<section id="adm" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">Administration</div></div>
+<div class="lgpanel"><div class="lgph"><b>COMPTES</b><span id="admE"></span></div><div class="zb" id="admL"></div></div>
+<div class="lgfoot"><button id="admBack">Retour</button><button id="admRs">Réinitialiser le classement</button></div></section>
 
 <section id="league" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">Carrière</div><span class="lgsep"></span><div class="seg" id="lgTabs"></div></div>
 <div class="lgpanel"><div class="lgph"><i class="dot big" style="--a:#1e7bff;--b:#f2f5fa"></i><b>LIQUI MOLY STARLIGUE</b><span id="lgSub"></span></div><div id="ltab"></div></div>
@@ -385,7 +412,7 @@ $('pset').onclick=()=>openSet('pause');$('pctl').onclick=()=>openCtl('pause');do
 /* ---------- compte en ligne (serveur Vercel + Supabase) ---------- */
 const TK='hb27_tok';let ACC=null,TOK='',accMode=0,OFFL=false;try{TOK=localStorage.getItem(TK)||''}catch(e){}
 const tokSave=t=>{TOK=t||'';try{t?localStorage.setItem(TK,t):localStorage.removeItem(TK)}catch(e){}};
-async function api(a,d){const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOK},body:JSON.stringify(Object.assign({a},d||{}))});let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error(j.error||'Erreur serveur'),{status:r.status});return j}
+async function api(a,d,u){const r=await fetch(u||'/api/auth',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOK},body:JSON.stringify(Object.assign({a},d||{}))});let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error(j.error||'Erreur serveur'),{status:r.status});return j}
 const setUser=u=>{ACC=u?{n:u.pseudo,av:u.av||'',role:u.role,pts:u.points,pl:u.played}:null;setAvt()};
 function setAvt(){const a=$('avt');a.style.backgroundImage=ACC&&ACC.av?`url(${ACC.av})`:'';a.textContent=ACC&&!ACC.av?ACC.n[0].toUpperCase():'';$('avn').textContent=ACC?ACC.n:''}
 function renderAcc(m){if(m!=null)accMode=m;const c=accMode===0;$('accT').textContent=c?'CRÉE TON COMPTE':'CONNEXION';$('accW2').style.display=c?'':'none';$('accSw').textContent=c?'J\'ai déjà un compte':'Créer un compte';$('accOff').style.display='none';$('accW').value=$('accP').value=$('accW2').value='';$('accE').textContent=c?'Un seul compte, valable sur tous tes appareils.':'Entre ton pseudo et ton mot de passe.';$('accGo').disabled=false}
@@ -406,8 +433,50 @@ $('spOut').onclick=()=>{tokSave('');ACC=null;OFFL=false;setAvt();toAcc(1)};$('sp
 $('spF').onchange=e=>{const fl=e.target.files[0];if(!fl||!ACC)return;const im=new Image();im.onload=async()=>{const c=document.createElement('canvas');c.width=c.height=128;const m=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);const v=c.toDataURL('image/jpeg',.82);
   if(!OFFL){try{await api('avatar',{av:v})}catch(x){$('spPh').textContent=x.status?x.message:'Hors connexion';setTimeout(()=>$('spPh').textContent='Changer la photo',2200);return}}
   ACC.av=v;setAvt()};im.src=URL.createObjectURL(fl);e.target.value=''};
-$('nOn').onclick=()=>{$('onSt').textContent=(ACC?ACC.n:'')+(OFFL?' · hors ligne':' · connecté');show('online')};$('onBack').onclick=()=>show('menu');
-document.querySelectorAll('.onb').forEach(b=>b.onclick=()=>{$('onSt').textContent='Bientôt disponible : il faut d\'abord brancher un serveur en ligne'});let nwc=0;
+
+/* ---------- équipes, classement, compétitions ---------- */
+const F5=FMTS.push({n:'5 vs 5',k:6,h:[[1,10],[11,4],[13,8],[13,12],[11,16],[16,10]],a:[[1,10],[27,4],[28,8],[28,12],[27,16],[24,10]]})-1;
+let MYT=null,BOARD=[],COMP=null,TMC='';const G=(a,d)=>api(a,d,'/api/game');
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const svg=(a,b,body)=>'url(data:image/svg+xml,'+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${a}'/><stop offset='1' stop-color='${b}'/></linearGradient></defs><rect width='200' height='100' fill='url(#g)'/>${body}</svg>`).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29')+')';
+const IM={team:svg('#1e7bff','#0a1630',"<circle cx='75' cy='38' r='13' fill='#f1c8a0'/><rect x='58' y='54' width='34' height='34' rx='12' fill='#f2f5fa'/><circle cx='125' cy='38' r='13' fill='#a8714a'/><rect x='108' y='54' width='34' height='34' rx='12' fill='#d7263d'/>"),
+ board:svg('#d7a21e','#0a1630',"<rect x='60' y='52' width='26' height='38' fill='#f2f5fa'/><rect x='87' y='30' width='26' height='60' fill='#f2c230'/><rect x='114' y='62' width='26' height='28' fill='#8ea0bd'/><circle cx='100' cy='18' r='7' fill='#f2c230'/>"),
+ quick:svg('#d7263d','#0a1630',"<circle cx='125' cy='50' r='22' fill='#f2f5fa'/><path d='M125 28v44M103 50h44M110 36q15 14 30 0M110 64q15-14 30 0' stroke='#13244a' stroke-width='3' fill='none'/><path d='M20 35h60M10 50h70M25 65h55' stroke='#fff' stroke-opacity='.4' stroke-width='4' stroke-linecap='round'/>"),
+ salon:svg('#13244a','#1e7bff',"<rect x='70' y='20' width='60' height='62' rx='6' fill='none' stroke='#f2f5fa' stroke-width='5'/><circle cx='118' cy='52' r='4' fill='#f2c230'/><text x='100' y='96' font-size='12' fill='#f2f5fa' text-anchor='middle'>CODE</text>"),
+ adm:svg('#444c5c','#0a1630',"<circle cx='100' cy='50' r='22' fill='none' stroke='#f2f5fa' stroke-width='8' stroke-dasharray='10 6'/><circle cx='100' cy='50' r='9' fill='#f2f5fa'/>")};
+const zCrest=t=>`<i class="zcr" style="background:${t.crest?`center/cover url(${t.crest})`:`linear-gradient(135deg,${t.c1} 50%,${t.c2} 50%)`}"></i>`;
+const formH=f=>(f||'').split('').map(x=>`<u class="${x.toLowerCase()}"></u>`).join('');
+function renderOn(){$('onSt').textContent=(ACC?ACC.n:'')+(OFFL?' · hors ligne':' · connecté');
+  const C=[['team','COMPÉTITIONS','MON ÉQUIPE','Nom, écusson, 6 joueurs'],['board','SAISON','CLASSEMENT','Points, forme, matchs'],['quick','MATCH CLASSÉ','PARTIE RAPIDE','Bientôt'],['salon','AMIS','SALON PRIVÉ','Bientôt']];
+  if(ACC&&ACC.role==='admin')C.push(['adm','ADMIN','GÉRER','Comptes et classement']);
+  $('onHub').innerHTML=C.map(c=>`<button class="cc zc4 onb" data-k="${c[0]}"><div class="zim" style="background-image:${IM[c[0]]}"></div><small>${c[1]}</small><b>${c[2]}</b><small>${c[3]}</small></button>`).join('')}
+$('nOn').onclick=()=>{renderOn();show('online')};$('onBack').onclick=()=>show('menu');
+$('onHub').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;if(k==='team')openTeam();else if(k==='board'){show('board');renderBoard()}else if(k==='adm'){show('adm');admRender()}else $('onSt').textContent='Bientôt disponible'};
+async function loadT(){if(MYT===null&&!OFFL){try{const m=await G('myteam');MYT=m.team||false}catch(e){}}}
+async function openTeam(){await loadT();renderTeam();show('team')}
+function tmCr(){$('tmCr').style.background=TMC?`center/cover url(${TMC})`:`linear-gradient(135deg,${$('tmC1').value} 50%,${$('tmC2').value} 50%)`}
+function renderTeam(){const t=MYT||{name:'',c1:'#1e7bff',c2:'#f2f5fa',crest:'',roster:[]};$('tmN').value=t.name;$('tmC1').value=t.c1;$('tmC2').value=t.c2;TMC=t.crest||'';$('tmE').textContent=OFFL?'Connexion requise':'';
+  $('tmR').innerHTML=Array.from({length:6},(_,i)=>{const p=t.roster[i]||{};return `<div class="zfm zpr"><small>${i?'J'+i:'GB'}</small><input maxlength="14" placeholder="${i?'Joueur '+i:'Gardien'}" value="${esc(p.n||'')}"><input type="number" min="0" max="99" placeholder="N°" value="${p.num??''}"><select>${[0,1,2,3].map(k=>`<option value="${k}"${p.sk==k?' selected':''}>Peau ${k+1}</option>`).join('')}</select></div>`}).join('');tmCr()}
+$('tmC1').oninput=$('tmC2').oninput=tmCr;$('tmPh').onclick=()=>$('tmF').click();$('tmBack').onclick=$('bdBack').onclick=$('admBack').onclick=()=>show('online');
+$('tmF').onchange=e=>{const fl=e.target.files[0];if(!fl)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=96;const m=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,96,96);TMC=c.toDataURL('image/jpeg',.8);tmCr()};im.src=URL.createObjectURL(fl);e.target.value=''};
+$('tmGo').onclick=async()=>{const r=[...$('tmR').children].map(d=>{const i=d.querySelectorAll('input');return{n:i[0].value.trim(),num:+i[1].value||0,sk:+d.querySelector('select').value}});
+  try{const j=await G('saveteam',{name:$('tmN').value,c1:$('tmC1').value,c2:$('tmC2').value,crest:TMC,roster:r});MYT=j.team;$('tmE').textContent='Équipe enregistrée ✓'}catch(x){$('tmE').textContent=x.status?x.message:'Serveur injoignable'}};
+async function renderBoard(){const L=$('bdL');L.textContent='Chargement…';
+  try{const j=await G('board');BOARD=j.teams;await loadT();
+   L.innerHTML='<div class="zr h"><span>#</span><span>ÉQUIPE</span><span>J</span><span>DB</span><span>5 DERNIERS</span><span>PTS</span><span></span></div>'+(BOARD.map((t,i)=>`<div class="zr${MYT&&t.id===MYT.id?' me':''}"><span>${i+1}</span><span>${zCrest(t)}${esc(t.name)}</span><span>${t.pl}</span><span>${t.gf-t.ga>0?'+':''}${t.gf-t.ga}</span><span class="zf">${formH(t.form)}</span><b>${t.pts}</b><span>${MYT&&t.id!==MYT.id?`<button data-id="${t.id}">JOUER</button>`:''}</span></div>`).join('')||'<div class="note">Aucune équipe pour l\'instant : crée la tienne dans MON ÉQUIPE.</div>')}
+  catch(x){L.textContent=x.status?x.message:'Serveur injoignable'}}
+$('bdL').onclick=e=>{const b=e.target.closest('button[data-id]');if(!b||!MYT)return;const a=BOARD.find(t=>t.id===b.dataset.id);if(!a)return;
+  COMP={h:MYT,a};lgMode(false);mode=2;fmt=F5;sel[0]=0;sel[1]=1;start()};
+const _at=applyTeams;applyTeams=function(){_at();if(COMP)[COMP.h,COMP.a].forEach((t,i)=>{COL[i]=t.c1;NAME[i]=t.name})};
+const _f0=finish0;finish0=function(){_f0();compDone()};
+async function compDone(){if(!COMP)return;const c=COMP;COMP=null;const e=$('ep');
+  try{await G('result',{home:c.h.id,away:c.a.id,hs:score[0],as:score[1]});e.textContent+=' · classement mis à jour'}catch(x){e.textContent+=' · '+(x.status?x.message:'résultat non envoyé')}}
+$('tomenu').addEventListener('click',()=>{COMP=null});$('spOut').addEventListener('click',()=>{MYT=null;COMP=null});
+async function admRender(){const L=$('admL');try{const j=await api('admin_list');L.innerHTML=j.players.filter(p=>p.role!=='admin').map(p=>`<div class="zar"><b>${esc(p.pseudo)}</b><small>${p.banned_until?'bloqué':''}</small><span data-id="${p.id}"><button data-m="60">1 h</button><button data-m="1440">1 j</button><button data-m="10080">7 j</button><button data-m="0">∞</button><button data-m="-1">Débloquer</button><button data-m="-2">Supprimer</button></span></div>`).join('')||'Aucun compte.'}catch(x){L.textContent=x.message}}
+$('admL').onclick=async e=>{const b=e.target.closest('button[data-m]');if(!b)return;const id=b.parentNode.dataset.id,m=+b.dataset.m;if(m===-2&&!confirm('Supprimer ce compte ?'))return;
+  try{await api(m===-2?'admin_delete':m===-1?'admin_unban':'admin_ban',{id,minutes:m});admRender()}catch(x){$('admE').textContent=x.message}};
+$('admRs').onclick=async()=>{if(!confirm('Remettre tout le classement à zéro ?'))return;try{await G('admin_reset');$('admE').textContent='Classement remis à zéro ✓'}catch(x){$('admE').textContent=x.message}};
+let nwc=0;
 $('lgSave').onclick=()=>{const b=$('lgSave'),ok=lgSave();b.textContent=ok?'Sauvegardé ✓':'Échec : stockage bloqué';setTimeout(()=>b.textContent='Sauvegarder',1800)};
 $('lgNew').onclick=()=>{const b=$('lgNew');if(!nwc){nwc=1;b.textContent='Confirmer ? (efface la sauvegarde)';setTimeout(()=>{nwc=0;b.textContent='Nouvelle carrière'},3000);return}
   nwc=0;b.textContent='Nouvelle carrière';try{localStorage.removeItem(LSK)}catch(e){}lgReset();LG.club=0;lgMode(true);renderDevs();show('devs')};$('nSet').onclick=()=>openSet('menu');$('tSet').onclick=()=>openSet('menu');$('tCtl').onclick=()=>openCtl('menu');$('nPlay').onclick=()=>{lgMode(false);renderDevs();show('devs')};$('dgo').onclick=()=>{if(LG.on)lgPlay();else{mode=NP;renderSetup();show('setup')}};$('dback').onclick=()=>{lgMode(false);show('menu')};addEventListener('gamepadconnected',()=>{if(state==='devs')renderDevs()});$('nLg').onclick=()=>{lgMode(true);mode=1;if(LG.wk)(renderLg(),show('league'));else{renderDevs();show('devs')}};$('lgPlay').onclick=lgPlay;$('lgBack').onclick=()=>{lgMode(false);show('menu')};$('nCtl').onclick=()=>openCtl('menu');
@@ -781,7 +850,7 @@ let last=performance.now();
 (function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;padMenu(dt);
   if(state==='play'||state==='goal'||state==='half'||state==='intro'||state==='full')update(dt);
   if(state==='play'||state==='goal'||state==='half'||state==='full'||state==='end'||state==='pause'||state==='intro')draw(now);
-  const mo=!$('load').classList.contains('on')&&['menu','setup','settings','controls','league','devs','online','acc'].includes(state);
+  const mo=!$('load').classList.contains('on')&&['menu','setup','settings','controls','league','devs','online','acc','team','board','adm'].includes(state);
   mc.style.display=mo?'block':'none';if(mo){mc.classList.toggle('dim',state!=='menu');mdraw(now)}
   requestAnimationFrame(loop)})(last);
 </script>
