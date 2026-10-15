@@ -245,7 +245,7 @@ const TEAMS=TD.map((d,k)=>({name:d[0],full:d[1],col:d[2],tr:d[3],nc:d[4],gk:d[5]
 const FMTS=[{n:'3 vs 3',k:3,h:[[1,10],[13,6],[13,14]],a:[[1,10],[28,6],[28,14]]},{n:'7 vs 7',k:7,h:[[1,10],[11,4],[13,7],[15,10],[13,13],[11,16],[17,10]],a:[[1,10],[27,3],[28,6.5],[30,10],[28,13.5],[27,17],[25,10]]}];
 const STD=[{n:'Palais des Sports',f:['#8a5a30','#c48a52'],bd:'#0b2a6b',cn:650},{n:'Arena Nocturne',f:['#555b66','#9aa3b2'],bd:'#5a0f24',cn:650},{n:'Dôme Azur',f:['#14509c','#2f7fd4'],bd:'#0a3f3c',cn:380}];
 const HAIR=['#1a1410','#4a2f1b','#c9a24b','#8a8a8a','#6b3a1e'],GT=5.4,IT=4;
-let stad=0,fmt=1,ft=0,LS=null,RP=false,SUBT=1e9;const REC=[],EV=[],SB={t:0,tx:''},REFP={t:2,i:5,x:20,y:10,fx:1,fy:0,ph:0,spd:0,z:0,jt:0,hold:0};COL[2]='#f2c230';TR[2]='#111';NC[2]='#111';
+let stad=0,fmt=1,ft=0,LS=null,RP=false,SUBT=1e9;const REC=[],EV=[],SB={t:0,tx:''},REFP={t:2,i:5,x:20,y:10,fx:1,fy:0,ph:0,spd:0,z:0,jt:0,hold:0};COL[2]='#f2c230';TR[2]='#111';
 const crowdColors=()=>crowd.forEach(c=>{const r=Math.random();c.c=r<.42?COL[0]:r<.84?COL[1]:'#f2f5fa'});
 function tick2(dt){REC.push({b:[ball.x,ball.y,ball.z,ball.rot],p:P.map(p=>[p.x,p.y,p.fx,p.fy,p.ph,p.spd,p.z,p.jt])});if(REC.length>150)REC.shift();
   const tx=cl(ball.x*.7+W*.15,3,W-3),ty=cl(ball.y<H/2?ball.y+4:ball.y-4,1.2,H-1.2),dx=tx-REFP.x,dy=ty-REFP.y,d=Math.hypot(dx,dy)||1,st=Math.min(d,4.8*dt);REFP.x+=dx/d*st;REFP.y+=dy/d*st;REFP.spd=st/dt;REFP.ph+=st*1.7;REFP.fx=dx/d;REFP.fy=dy/d;
@@ -285,7 +285,7 @@ function lgPlay(){if(LG.wk>=LGN)lgReset();sel[0]=LG.club;sel[1]=lgOpp(LG.club);m
 function lgAfter(){const A=$('again'),M=$('tomenu');if(!LG.on){A.textContent='Rejouer';M.textContent='Menu';return}
   lgRec(LG.club,lgOpp(LG.club),score[0],score[1]);LG.res[LG.wk]=[score[0],score[1]];LG.form.push(score[0]>score[1]?'V':score[0]<score[1]?'D':'N');lgSim(LG.club);LG.wk++;const r=lgSort().indexOf(LG.club)+1;
   $('ep').textContent+=' · J'+LG.wk+' · '+r+(r==1?'er':'e');A.textContent=LG.wk<LGN?'Journée suivante':'Fin de saison';M.textContent='Classement'}
-const NC=['#fff','#111'];let flip=false,half2=false,ht=0,total=240;const PL=p=>p.t>1?{n:'ARBITRE',num:''}:TEAMS[sel[p.t]].players[p.i];
+const NC=['#fff','#111'];NC[2]='#111';let flip=false,half2=false,ht=0,total=240;const PL=p=>p.t>1?{n:'ARBITRE',num:''}:TEAMS[sel[p.t]].players[p.i];
 const DURS=[2,4,6,10],DIF=[{n:'Amateur',bs:.85,shot:2,save:.4},{n:'Pro',bs:1,shot:3,save:.55},{n:'Légende',bs:1.12,shot:4,save:.68}];
 let dif=1,dur=4,sel=[0,1];
 const crest=T=>`<svg viewBox="0 0 100 120" class="crest" aria-hidden="true"><path d="M10 10h80v55c0 28-24 42-40 48C34 107 10 93 10 65z" fill="${T.col}" stroke="#f2f5fa" stroke-width="5"/><path d="M10 10h80v22H10z" fill="${T.tr}"/><text x="50" y="80" text-anchor="middle" font-size="30" font-weight="800" font-style="italic" fill="${T.nc}" font-family="Barlow Condensed,Impact,sans-serif">${T.name.slice(0,3)}</text></svg>`;
@@ -546,7 +546,7 @@ function draw(now){
   // HUD
   const u=h/100,cx=w/2,ty=2*u,bh=7.6*u,m=Math.floor(clock/60),ss=String(Math.floor(clock%60)).padStart(2,'0');let hx0=cx-30.4*u;
   const cell=(wd,bg,t,fg,fs)=>{ctx.fillStyle=bg;ctx.fillRect(hx0,ty,wd*u,bh);if(t!=null){ctx.fillStyle=fg;ctx.font=`italic 800 ${fs*u}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,hx0+wd*u/2,ty+bh/2+.2*u)}hx0+=wd*u},dk='rgba(4,7,15,.92)';
-  cell(1.4,COL[0]);cell(17,dk,NAME[0],'#f2f5fa',3);cell(6.5,'#f2f5fa',score[0],'#04070f',5);cell(11,'rgba(10,22,48,.96)',m+':'+ss,'#fff',3.6);cell(6.5,'#f2f5fa',score[1],'#04070f',5);cell(17,dk,NAME[1],'#f2f5fa',3);cell(1.4,COL[1]);
+  cell(1.4,COL[0]);cell(17,dk,NAME[0],'#f2f5fa',3*Math.min(1,8.5/NAME[0].length));cell(6.5,'#f2f5fa',score[0],'#04070f',5);cell(11,'rgba(10,22,48,.96)',m+':'+ss,'#fff',3.6);cell(6.5,'#f2f5fa',score[1],'#04070f',5);cell(17,dk,NAME[1],'#f2f5fa',3*Math.min(1,8.5/NAME[1].length));cell(1.4,COL[1]);
   ctx.fillStyle='rgba(4,7,15,.85)';ctx.fillRect(cx-6*u,ty+bh,12*u,2.6*u);ctx.fillStyle='#8ea0bd';ctx.font=`600 ${1.7*u}px ${FONT}`;ctx.fillText(half2?'2e MI-TEMPS':'1re MI-TEMPS',cx,ty+bh+1.35*u);
   if(SB.t>0){ctx.fillStyle='rgba(4,7,15,.85)';ctx.fillRect(cx-24*u,ty+bh+3*u,48*u,3.2*u);ctx.fillStyle='#f2c230';ctx.font=`italic 700 ${2.3*u}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(SB.tx,cx,ty+bh+4.7*u)}
   if(CFG.hint&&state!=='half'&&!document.body.classList.contains('touch')){ctx.font=`500 ${2.4*u}px ${FONT}`;ctx.textBaseline='middle';ctx.textAlign='center';ctx.fillStyle='rgba(242,245,250,.8)';
