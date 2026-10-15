@@ -118,7 +118,7 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 .tile.img.big{background-image:linear-gradient(180deg,rgba(4,7,15,0) 40%,rgba(4,7,15,.85)),linear-gradient(110deg,rgba(30,123,255,.35),rgba(4,7,15,0) 60%),var(--img)}
 .tile.img small{color:#dbe8ff;text-shadow:0 1px 6px #000}.tile.img b{text-shadow:0 2px 10px #000}
 .crest{width:100%;display:block}
-.tiles{grid-template-columns:1.5fr 1fr 1fr 1fr}.tile.wide{grid-column:span 2}.lg #t1 .ar,.lk #t0 .ar{display:none}
+.tiles{grid-template-columns:1.6fr 1fr 1fr}.tabs .tab{letter-spacing:inherit;padding:0 0 4px;border-bottom:3px solid transparent}.tab.on{border-bottom-color:var(--blue)}#devs .seg{flex-wrap:wrap}#devs .set{margin:1.2vh 0}.tile.wide{grid-column:span 2}.lg #t1 .ar,.lk #t0 .ar{display:none}
 #ltab{max-height:60vh;overflow:auto;width:min(88vw,780px)}#ltab table{width:100%;border-collapse:collapse;font-size:clamp(11px,2.1vh,18px)}
 #ltab th{color:var(--mute);letter-spacing:.14em;font-weight:500;text-align:center}#ltab td,#ltab th{padding:.25vh 8px;text-align:center;border-bottom:1px solid rgba(142,160,189,.15)}#ltab td:nth-child(2),#ltab th:nth-child(2){text-align:left}
 #ltab tr.me{background:rgba(30,123,255,.35)}#ltab tr:nth-child(2) td:first-child{color:#f2c230;font-weight:800}
@@ -141,14 +141,12 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 </section>
 
 <section id="menu" class="scr">
-  <div class="topbar"><div class="brand">HB<em>27</em><small>LE JEU DE HANDBALL</small></div><div class="tabs"><span class="tab on">ACCUEIL</span><span class="tab">CLUBS</span><span class="tab">COMPÉTITIONS</span><span class="tab">CARRIÈRE</span><span class="tab">EN LIGNE</span></div></div>
+  <div class="topbar"><div class="brand">HB<em>27</em><small>LE JEU DE HANDBALL</small></div><div class="tabs"><button class="tab on">ACCUEIL</button><button class="tab" id="nLg">CHAMPIONNAT</button><button class="tab" id="tCtl">COMMANDES</button><button class="tab" id="tSet">RÉGLAGES</button></div></div>
   <div class="tiles">
-    <button class="tile big img" id="nPlay" data-m="1" style="--img:url(menu_art.png);--sz:300% auto;--pos:80% 30%"><b>1 JOUEUR</b><small>Coup d'envoi · toi contre le bot</small></button>
-    <button class="tile img" data-m="2" style="--img:url(menu_art.png);--sz:420% auto;--pos:16% 72%"><b>2 JOUEURS</b><small>2 manettes ou clavier</small></button>
+    <button class="tile big img" id="nPlay" style="--img:url(menu_art.png);--sz:300% auto;--pos:80% 30%"><b>COUP D'ENVOI</b><small>1 ou 2 joueurs · manette ou clavier</small></button>
     <button class="tile img" id="nCtl" style="--img:url(menu_art.png);--sz:400% auto;--pos:100% 62%"><b>COMMANDES</b><small>Voir les touches</small></button>
     <button class="tile img" id="nSet" style="--img:url(menu_art.png);--sz:380% auto;--pos:2% 0%"><b>RÉGLAGES</b><small>Son · caméra · musique</small></button>
-    <button class="tile img wide" id="nLg" style="--img:url(menu_art.png);--sz:300% auto;--pos:60% 55%"><b>CHAMPIONNAT</b><small>Saison Liqui Moly StarLigue · 16 clubs</small></button>
-    <button class="tile img" id="fs" style="--img:url(menu_art.png);--sz:320% auto;--pos:92% 22%"><b>PLEIN ÉCRAN</b><small>Immersion totale</small></button>
+    <button class="tile img wide" id="fs" style="--img:url(menu_art.png);--sz:320% auto;--pos:92% 22%"><b>PLEIN ÉCRAN</b><small>Immersion totale</small></button>
   </div>
   <button id="play" hidden></button>
   <div class="foot"><span id="pads">Aucune manette détectée</span></div>
@@ -161,6 +159,13 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
   <div class="set"><div><label>Durée du match</label><div class="seg" id="sdur"></div></div><div><label>Difficulté</label><div class="seg" id="sdif"></div></div></div>
   <div class="mini"><button id="sback">Retour</button><button class="go" id="sgo">JOUER</button></div>
 </div></section>
+
+<section id="devs" class="scr"><div class="srow"><h2>COUP D'ENVOI</h2><div class="sub">CHOIX DES MANETTES</div>
+  <div class="set" id="dnRow"><div><label>Nombre de joueurs</label><div class="seg" id="dN"></div></div></div>
+  <div class="set"><div><label>JOUEUR 1</label><div class="seg" id="d0"></div></div></div>
+  <div class="set" id="dr1"><div><label>JOUEUR 2</label><div class="seg" id="d1"></div></div></div>
+  <div class="note" id="dinfo"></div>
+  <div class="mini"><button id="dback" data-back>RETOUR</button><button class="go" id="dgo">SUIVANT</button></div></div></section>
 
 <section id="league" class="scr"><div class="srow"><h2>CHAMPIONNAT</h2><div class="sub" id="lgSub"></div><div id="ltab"></div><div class="mini"><button id="lgBack" data-back>MENU</button><button class="go" id="lgPlay">JOUER</button></div></div></section>
 
@@ -226,6 +231,18 @@ function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggl
 const TD=[['PARIS','Paris Saint-Germain','#0a1f44','#d7263d','#fff','#34c38f',[90,88,88,91]],['MONTPELLIER','Montpellier Handball','#1b3a8a','#f2f5fa','#fff','#f2c230',[86,85,85,88]],['NANTES','HBC Nantes','#1f8a4c','#f2f5fa','#fff','#d7263d',[85,84,84,86]],['CHAMBÉRY','Chambéry Savoie Mont-Blanc','#f2c230','#111','#111','#1b2433',[81,80,80,82]],['AIX','Pays d\'Aix UC','#7a1f2b','#f2c230','#fff','#34c38f',[80,80,79,81]],['NÎMES','USAM Nîmes Gard','#e8edf5','#d7263d','#111','#1b2433',[79,79,79,80]],['DUNKERQUE','USDK Handball','#1d4fa3','#f2c230','#fff','#d7263d',[78,78,77,79]],['ST-RAPHAËL','Saint-Raphaël Var HB','#c8102e','#111','#fff','#f2c230',[77,77,77,78]],['TOULOUSE','Fenix Toulouse HB','#5b2a86','#f58220','#fff','#34c38f',[76,76,76,77]],['CESSON','Cesson-Rennes MHB','#9b1b30','#111','#fff','#f2c230',[75,74,75,76]],['LIMOGES','Limoges Handball','#14746f','#f2f5fa','#fff','#d7263d',[73,74,73,75]],['ISTRES','Istres Provence HB','#1f6fd1','#f2f5fa','#fff','#f2c230',[73,73,72,74]],['CHARTRES','C\'Chartres MHB','#d9531e','#111','#fff','#1b2433',[72,72,72,73]],['TREMBLAY','Tremblay-en-France HB','#e03a3e','#f2f5fa','#fff','#34c38f',[71,72,71,72]],['CRÉTEIL','US Créteil Handball','#2a3f8f','#d7263d','#fff','#f2c230',[70,71,70,72]],['DIJON','Dijon Métropole HB','#e0242b','#111','#fff','#34c38f',[70,70,70,71]]];
 const SUR='Martin Bernard Dubois Thomas Robert Richard Petit Durand Leroy Moreau Simon Laurent Lefebvre Michel Garcia David Bertrand Roux Vincent Fournier Morel Girard André Mercier Dupont Lambert Bonnet François Martinez Legrand Garnier Faure Rousseau Blanc Guerin Muller Henry Roussel Nicolas Perrin Morin Mathieu Clément Gauthier Dumont Lopez Fontaine Chevalier Robin Masson Sanchez Gérard Nguyen Boyer Denis Lemaire Duval Joly Gautier Roger Roche Roy Noel Meyer'.split(' ');
 const TEAMS=TD.map((d,k)=>({name:d[0],full:d[1],col:d[2],tr:d[3],nc:d[4],gk:d[5],players:[[1,16,12,30][k%4],3+k%4,7+k%3,10+k%5].map((num,i)=>({n:SUR[k*4+i],num}))}));RAT=TD.map(d=>d[6]);
+let DEV=['kb','k2'],NP=1,rdI=0;
+const kset=t=>{const d=DEV[t];return d==='k1'?[KS[0]]:d==='k2'?[KS[1]]:d==='kb'?KS:[]};
+const kz=()=>KL.KeyW?['KeyW','KeyA','KeyS','KeyD'].map(kn).join(''):'ZQSD';
+const devList=()=>[['k1','Clavier '+kz()],['k2','Clavier ← ↑ ↓ →'],...(NP==1?[['kb','Clavier (les deux)']]:[]),...gps().map((g,i)=>['p'+i,'Manette '+(i+1)+' · '+g.id.replace(/\(.*$/,'').trim().slice(0,16)])];
+function renderDevs(){if(LG.on)NP=1;if(!rdI&&gps().length){DEV[0]='p0';rdI=1}
+  const L=devList(),ids=L.map(d=>d[0]);if(NP==2&&DEV[0]==='kb')DEV[0]='k1';
+  for(let t=0;t<2;t++)if(!ids.includes(DEV[t]))DEV[t]=ids[0];
+  if(NP==2&&DEV[0]===DEV[1])DEV[1]=ids.find(x=>x!==DEV[0]&&x!=='kb')||DEV[1];
+  $('dnRow').style.display=LG.on?'none':'';$('dr1').style.display=NP==2?'':'none';
+  seg('dN',['1 joueur','2 joueurs'],()=>NP-1,i=>{NP=i+1;renderDevs()});
+  for(const t of[0,1])if(t==0||NP==2)seg('d'+t,L.map(d=>d[1]),()=>ids.indexOf(DEV[t]),i=>{DEV[t]=ids[i];if(NP==2&&DEV[1-t]===DEV[t]){const o=ids.find(x=>x!==DEV[t]&&x!=='kb');if(o)DEV[1-t]=o}renderDevs()});
+  $('dinfo').textContent=(NP==2?'Chaque joueur a sa propre manette ou son propre clavier.':'Tu joues contre le bot.')+(gps().length?'':' · Aucune manette détectée : appuie sur un bouton de ta manette.')}
 /* ---------- championnat ---------- */
 const LG={on:false,club:0,wk:0,t:null},LGN=TEAMS.length-1,lgMode=v=>{LG.on=v;document.body.classList.toggle('lg',v)};
 function lgReset(){LG.t=TEAMS.map(()=>({w:0,d:0,l:0,f:0,a:0}));LG.wk=0}lgReset();
@@ -254,7 +271,7 @@ function renderSetup(){document.body.classList.toggle('lk',LG.on&&LG.wk>0);$('t0
 $('setup').addEventListener('click',e=>{const b=e.target.closest('.ar');if(!b)return;const i=+b.dataset.i,d=+b.dataset.d,n=TEAMS.length;
   if(LG.on){if(LG.wk)return;sel[0]=(sel[0]+d+n)%n;sel[1]=lgOpp(sel[0])}else{sel[i]=(sel[i]+d+n)%n;if(sel[i]==sel[1-i])sel[1-i]=(sel[1-i]+d+n)%n}renderSetup()});
 function applyTeams(){for(let t=0;t<2;t++){const T=TEAMS[sel[t]];COL[t]=T.col;TR[t]=T.tr;GKC[t]=T.gk;NC[t]=T.nc;NAME[t]=T.name}}
-$('sback').onclick=()=>LG.on&&LG.wk?(renderLg(),show('league')):show('menu');$('sgo').onclick=()=>start();
+$('sback').onclick=()=>LG.on&&LG.wk?(renderLg(),show('league')):show('devs');$('sgo').onclick=()=>start();
 
 /* ---------- musique & bruitages (synthétisés, sans fichier) ---------- */
 const MU={a:null,g:null,on:true,n:0,t:0,nb:null,k:0};
@@ -294,14 +311,14 @@ function updPads(){const n=gps().length;$('pads').textContent=n?n+' manette'+(n>
 addEventListener('gamepadconnected',updPads);addEventListener('gamepaddisconnected',updPads);
 const toMenu=()=>{$('pause').style.display='none';$('end').style.display='none';state='menu';show('menu')};
 $('quit').onclick=togglePause;$('presume').onclick=togglePause;$('tomenu').onclick=()=>{if(LG.on&&LG.wk){$('end').style.display='none';renderLg();show('league')}else toMenu()};$('pq').onclick=toMenu;$('again').onclick=()=>{if(LG.on){$('end').style.display='none';if(LG.wk<LGN)lgPlay();else{renderLg();show('league')}}else start()};
-$('pset').onclick=()=>openSet('pause');$('pctl').onclick=()=>openCtl('pause');document.querySelectorAll('.tile[data-m]').forEach(b=>b.onclick=()=>{lgMode(false);mode=+b.dataset.m;renderSetup();show('setup')});$('nSet').onclick=()=>openSet('menu');$('nLg').onclick=()=>{lgMode(true);mode=1;if(LG.wk)(renderLg(),show('league'));else lgPlay()};$('lgPlay').onclick=lgPlay;$('lgBack').onclick=()=>{lgMode(false);show('menu')};$('nCtl').onclick=()=>openCtl('menu');
+$('pset').onclick=()=>openSet('pause');$('pctl').onclick=()=>openCtl('pause');document.querySelectorAll('.tile[data-m]').forEach(b=>b.onclick=()=>{lgMode(false);mode=+b.dataset.m;renderSetup();show('setup')});$('nSet').onclick=()=>openSet('menu');$('tSet').onclick=()=>openSet('menu');$('tCtl').onclick=()=>openCtl('menu');$('nPlay').onclick=()=>{lgMode(false);renderDevs();show('devs')};$('dgo').onclick=()=>{if(LG.on)lgPlay();else{mode=NP;renderSetup();show('setup')}};$('dback').onclick=()=>{lgMode(false);show('menu')};addEventListener('gamepadconnected',()=>{if(state==='devs')renderDevs()});$('nLg').onclick=()=>{lgMode(true);mode=1;if(LG.wk)(renderLg(),show('league'));else{renderDevs();show('devs')}};$('lgPlay').onclick=lgPlay;$('lgBack').onclick=()=>{lgMode(false);show('menu')};$('nCtl').onclick=()=>openCtl('menu');
 
 /* ---------- entrées ---------- */
 const K={},B=[{p:0,s:0,w:0},{p:0,s:0,w:0}],PP=[[],[]],joy={x:0,y:0,on:false};
 const KS=[{u:'KeyW',d:'KeyS',l:'KeyA',r:'KeyD',p:'KeyF',s:'KeyG',w:'KeyE'},{u:'ArrowUp',d:'ArrowDown',l:'ArrowLeft',r:'ArrowRight',p:'Comma',s:'Period',w:'Slash'}];
 const human=t=>mode==2||t==0;
 addEventListener('keydown',e=>{if(state!=='play'&&state!=='goal')return;e.preventDefault();if(K[e.code])return;K[e.code]=1;
-  for(let t=0;t<2;t++)for(const k of(mode==1&&t==0?KS:[KS[t]]))for(const a of'psw')if(k[a]===e.code&&human(t))B[t][a]=1});
+  for(let t=0;t<2;t++)for(const k of kset(t))for(const a of'psw')if(k[a]===e.code&&human(t))B[t][a]=1});
 addEventListener('keyup',e=>K[e.code]=0);
 const gps=()=>[...(navigator.getGamepads?navigator.getGamepads():[])].filter(g=>g&&g.connected&&g.buttons.length>=4&&g.axes.length>=2);
 const pb=(g,i)=>!!(g.buttons[i]&&(g.buttons[i].pressed||g.buttons[i].value>.5));
@@ -309,10 +326,10 @@ function stick(g){let x=g.axes[0]||0,y=g.axes[1]||0;if(Math.abs(x)<.22)x=0;if(Ma
   if(pb(g,12))y-=1;if(pb(g,13))y+=1;if(pb(g,14))x-=1;if(pb(g,15))x+=1;
   if(g.axes.length>9&&g.axes[9]<1.5){const v=g.axes[9];if(Math.abs(v+1)<.1)y-=1;else if(Math.abs(v+.43)<.1)x+=1;else if(Math.abs(v-.14)<.1)y+=1;else if(Math.abs(v-.71)<.1)x-=1}
   return[cl(x,-1,1),cl(y,-1,1)]}
-function padOf(t){if(mode==1&&t==1)return null;return gps()[t]||null}
+function padOf(t){const d=DEV[t];return d&&d[0]==='p'?gps()[+d.slice(1)]||null:null}
 function pollPads(){for(let t=0;t<2;t++){const g=padOf(t);if(!g)continue;const b=g.buttons.map((_,i)=>pb(g,i)),r=PP[t];
   if(b[0]&&!r[0])B[t].p=1;if((b[2]||b[7])&&!(r[2]||r[7]))B[t].s=1;if((b[1]||b[4]||b[5])&&!(r[1]||r[4]||r[5]))B[t].w=1;PP[t]=b}}
-function axis(t){let x=0,y=0;for(const k of(mode==1&&t==0?KS:[KS[t]])){x+=(K[k.r]?1:0)-(K[k.l]?1:0);y+=(K[k.d]?1:0)-(K[k.u]?1:0)}
+function axis(t){let x=0,y=0;for(const k of kset(t)){x+=(K[k.r]?1:0)-(K[k.l]?1:0);y+=(K[k.d]?1:0)-(K[k.u]?1:0)}
   const g=padOf(t);if(g){const q=stick(g);x+=q[0];y+=q[1]}
   if(t==0&&joy.on){x+=joy.x;y+=joy.y}
   if(flip)x=-x;const m=Math.hypot(x,y);return m>1?[x/m,y/m]:[x,y]}
@@ -504,7 +521,7 @@ function draw(now){
   cell(1.4,COL[0]);cell(17,dk,NAME[0],'#f2f5fa',3);cell(6.5,'#f2f5fa',score[0],'#04070f',5);cell(11,'rgba(10,22,48,.96)',m+':'+ss,'#fff',3.6);cell(6.5,'#f2f5fa',score[1],'#04070f',5);cell(17,dk,NAME[1],'#f2f5fa',3);cell(1.4,COL[1]);
   ctx.fillStyle='rgba(4,7,15,.85)';ctx.fillRect(cx-6*u,ty+bh,12*u,2.6*u);ctx.fillStyle='#8ea0bd';ctx.font=`600 ${1.7*u}px ${FONT}`;ctx.fillText(half2?'2e MI-TEMPS':'1re MI-TEMPS',cx,ty+bh+1.35*u);
   if(CFG.hint&&state!=='half'&&!document.body.classList.contains('touch')){ctx.font=`500 ${2.4*u}px ${FONT}`;ctx.textBaseline='middle';ctx.textAlign='center';ctx.fillStyle='rgba(242,245,250,.8)';
-    const hn=t=>padOf(t)?'A passe · X tir · B changer · Start pause':t?', passe · . tir · / changer':kn('KeyF')+' passe · '+kn('KeyG')+' tir · '+kn('KeyE')+' changer · P pause';
+    const hn=t=>padOf(t)?'A passe · X tir · B changer · Start pause':DEV[t]==='k2'?', passe · . tir · / changer':kn('KeyF')+' passe · '+kn('KeyG')+' tir · '+kn('KeyE')+' changer · P pause';
     if(mode==2){ctx.fillText(hn(0),cx-cw*.2,h*.97);ctx.fillText(hn(1),cx+cw*.2,h*.97)}else ctx.fillText(hn(0),cx,h*.97)}
   if(gl){const t=2.2-gt;
     for(const c of conf){ctx.fillStyle=c.c;ctx.fillRect((c.x+c.vx*t)*w,(c.y+c.vy*t+.15*t*t)*h,c.s*h,c.s*h*1.6)}
