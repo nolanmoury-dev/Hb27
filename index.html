@@ -171,6 +171,12 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 .zfm input[type=color]{width:6vh;height:5vh;padding:0}
 .zpl{display:grid;grid-template-columns:1fr 1fr;gap:1vh 2vw;margin-top:2vh}.zpr{display:grid;grid-template-columns:3vw 1fr 6vw 9vw;gap:.6vw;align-items:center}
 .zar{display:flex;gap:.6vw;align-items:center;padding:.8vh 0;border-bottom:1px solid rgba(142,160,189,.15)}.zar b{min-width:14vw}.zar span{margin-left:auto;display:flex;gap:.4vw}.zar button{padding:.5vh .8vw;border:1px solid rgba(142,160,189,.4);border-radius:5px;font-size:clamp(11px,1.9vh,16px)}
+
+/* v4 : écran EN LIGNE façon accueil, avec l'image online_art.jpg */
+#online .tile.img{background-image:linear-gradient(180deg,rgba(4,7,15,.05) 30%,rgba(4,7,15,.88)),url(online_art.jpg);background-size:cover,var(--sz);background-position:center,var(--pos);background-repeat:no-repeat}
+#online .tile.img.big{background-image:linear-gradient(180deg,rgba(4,7,15,0) 45%,rgba(4,7,15,.85)),linear-gradient(110deg,rgba(30,123,255,.3),rgba(4,7,15,0) 60%),url(online_art.jpg);background-size:cover,cover,var(--sz);background-position:center,center,var(--pos)}
+#online .tile.soon{filter:saturate(.7)}
+#online .tile .bd{position:absolute;top:1.6vh;right:1vw;padding:.3vh .8vw;border-radius:99px;background:rgba(4,7,15,.72);border:1px solid rgba(242,245,250,.45);color:var(--ice);font-size:clamp(10px,1.7vh,15px);font-weight:700;letter-spacing:.16em;font-style:normal}
 </style>
 </head>
 <body>
@@ -221,10 +227,11 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
   <div class="accf"><input id="accP" placeholder="Pseudo" maxlength="16" autocomplete="username"><input id="accW" type="password" placeholder="Mot de passe" autocomplete="current-password"><input id="accW2" type="password" placeholder="Confirmer le mot de passe"></div>
   <div class="note" id="accE"></div><div class="mini"><button id="accSw">Changer de compte</button><button id="accOff" style="display:none">Jouer hors ligne</button><button class="go" id="accGo">VALIDER</button></div></div></section>
 
-<section id="online" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">En ligne</div></div>
-<div class="lgpanel"><div class="lgph"><i class="dot big" style="--a:#1e7bff;--b:#f2f5fa"></i><b>MODE EN LIGNE</b><span id="onSt"></span></div>
- <div class="chub" id="onHub" style="padding:3vh 1.5vw"></div></div>
-<div class="lgfoot"><button id="onBack" data-back>Retour</button></div></section>
+<section id="online" class="scr">
+  <div class="topbar"><button class="avt" id="oavt" aria-label="Profil et réglages"></button><span class="avn" id="oavn"></span><div class="brand">HB<em>27</em><small>LE JEU DE HANDBALL</small></div><div class="tabs"><button class="tab" id="oHome" data-back>ACCUEIL</button><button class="tab" id="oLg">CARRIÈRE</button><button class="tab on" id="oOn">EN LIGNE</button><button class="tab" id="oCtl">COMMANDES</button><button class="tab" id="oSet">RÉGLAGES</button></div></div>
+  <div class="tiles" id="onHub"></div>
+  <div class="foot"><span id="onSt"></span></div>
+</section>
 
 <section id="team" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">Mon équipe</div></div>
 <div class="lgpanel"><div class="lgph"><b>COMPÉTITIONS · 5 VS 5 + GARDIEN</b><span id="tmE"></span></div>
@@ -414,7 +421,7 @@ const TK='hb27_tok';let ACC=null,TOK='',accMode=0,OFFL=false;try{TOK=localStorag
 const tokSave=t=>{TOK=t||'';try{t?localStorage.setItem(TK,t):localStorage.removeItem(TK)}catch(e){}};
 async function api(a,d,u){const r=await fetch(u||'/api/auth',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOK},body:JSON.stringify(Object.assign({a},d||{}))});let j={};try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error(j.error||'Erreur serveur'),{status:r.status});return j}
 const setUser=u=>{ACC=u?{n:u.pseudo,av:u.av||'',role:u.role,pts:u.points,pl:u.played}:null;setAvt()};
-function setAvt(){const a=$('avt');a.style.backgroundImage=ACC&&ACC.av?`url(${ACC.av})`:'';a.textContent=ACC&&!ACC.av?ACC.n[0].toUpperCase():'';$('avn').textContent=ACC?ACC.n:''}
+function setAvt(){for(const [i,n] of [['avt','avn'],['oavt','oavn']]){const a=$(i);a.style.backgroundImage=ACC&&ACC.av?`url(${ACC.av})`:'';a.textContent=ACC&&!ACC.av?ACC.n[0].toUpperCase():'';$(n).textContent=ACC?ACC.n:''}}
 function renderAcc(m){if(m!=null)accMode=m;const c=accMode===0;$('accT').textContent=c?'CRÉE TON COMPTE':'CONNEXION';$('accW2').style.display=c?'':'none';$('accSw').textContent=c?'J\'ai déjà un compte':'Créer un compte';$('accOff').style.display='none';$('accW').value=$('accP').value=$('accW2').value='';$('accE').textContent=c?'Un seul compte, valable sur tous tes appareils.':'Entre ton pseudo et ton mot de passe.';$('accGo').disabled=false}
 function toAcc(m){renderAcc(m);show('acc');setTimeout(()=>$('accP').focus(),100)}
 async function afterLoad(){if(TOK){try{const j=await api('me');setUser(j.user);return show('menu')}catch(e){if(e.status===401||e.status===403)tokSave('');else{/* serveur injoignable : on propose le mode hors ligne */}}}
@@ -446,11 +453,15 @@ const IM={team:svg('#1e7bff','#0a1630',"<circle cx='75' cy='38' r='13' fill='#f1
  adm:svg('#444c5c','#0a1630',"<circle cx='100' cy='50' r='22' fill='none' stroke='#f2f5fa' stroke-width='8' stroke-dasharray='10 6'/><circle cx='100' cy='50' r='9' fill='#f2f5fa'/>")};
 const zCrest=t=>`<i class="zcr" style="background:${t.crest?`center/cover url(${t.crest})`:`linear-gradient(135deg,${t.c1} 50%,${t.c2} 50%)`}"></i>`;
 const formH=f=>(f||'').split('').map(x=>`<u class="${x.toLowerCase()}"></u>`).join('');
-function renderOn(){$('onSt').textContent=(ACC?ACC.n:'')+(OFFL?' · hors ligne':' · connecté');
-  const C=[['team','COMPÉTITIONS','MON ÉQUIPE','Nom, écusson, 6 joueurs'],['board','SAISON','CLASSEMENT','Points, forme, matchs'],['quick','MATCH CLASSÉ','PARTIE RAPIDE','Bientôt'],['salon','AMIS','SALON PRIVÉ','Bientôt']];
-  if(ACC&&ACC.role==='admin')C.push(['adm','ADMIN','GÉRER','Comptes et classement']);
-  $('onHub').innerHTML=C.map(c=>`<button class="cc zc4 onb" data-k="${c[0]}"><div class="zim" style="background-image:${IM[c[0]]}"></div><small>${c[1]}</small><b>${c[2]}</b><small>${c[3]}</small></button>`).join('')}
-$('nOn').onclick=()=>{renderOn();show('online')};$('onBack').onclick=()=>show('menu');
+function renderOn(){$('onSt').textContent=(ACC?ACC.n:'')+(OFFL?' · hors ligne':' · connecté');const ad=!!(ACC&&ACC.role==='admin');
+  /* [clé, titre, sous-titre, bientôt ?, zone de l'image : taille + position] */
+  const C=[['team','MON ÉQUIPE','Compétitions · nom, écusson, 6 joueurs',0,'--sz:200% auto;--pos:32% 38%','big'],
+    ['board','CLASSEMENT','Saison · points, forme, matchs',0,'--sz:293% auto;--pos:100% 0%',''],
+    ['quick','PARTIE RAPIDE','Match classé',1,'--sz:340% auto;--pos:100% 60%',''],
+    ['salon','SALON PRIVÉ','Entre amis · match à distance',1,ad?'--sz:298% auto;--pos:40% 86%':'--sz:217% auto;--pos:30% 88%',ad?'':'wide']];
+  if(ad)C.push(['adm','GÉRER','Admin · comptes et classement',0,'--sz:557% auto;--pos:0% 24%','']);
+  $('onHub').innerHTML=C.map(c=>`<button class="tile img ${c[5]}${c[3]?' soon':''}" data-k="${c[0]}" style="${c[4]}">${c[3]?'<i class="bd">BIENTÔT</i>':''}<b>${c[1]}</b><small>${c[2]}</small></button>`).join('')}
+$('nOn').onclick=()=>{renderOn();show('online')};$('oHome').onclick=()=>show('menu');$('oLg').onclick=()=>$('nLg').click();$('oCtl').onclick=()=>openCtl('menu');$('oSet').onclick=$('oavt').onclick=()=>openSet('menu');
 $('onHub').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;if(k==='team')openTeam();else if(k==='board'){show('board');renderBoard()}else if(k==='adm'){show('adm');admRender()}else $('onSt').textContent='Bientôt disponible'};
 async function loadT(){if(MYT===null&&!OFFL){try{const m=await G('myteam');MYT=m.team||false}catch(e){}}}
 async function openTeam(){await loadT();renderTeam();show('team')}
@@ -851,7 +862,7 @@ let last=performance.now();
   if(state==='play'||state==='goal'||state==='half'||state==='intro'||state==='full')update(dt);
   if(state==='play'||state==='goal'||state==='half'||state==='full'||state==='end'||state==='pause'||state==='intro')draw(now);
   const mo=!$('load').classList.contains('on')&&['menu','setup','settings','controls','league','devs','online','acc','team','board','adm'].includes(state);
-  mc.style.display=mo?'block':'none';if(mo){mc.classList.toggle('dim',state!=='menu');mdraw(now)}
+  mc.style.display=mo?'block':'none';if(mo){mc.classList.toggle('dim',state!=='menu'&&state!=='online');mdraw(now)}
   requestAnimationFrame(loop)})(last);
 </script>
 </body>
