@@ -189,6 +189,7 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 #online .tile.img.big{background-image:linear-gradient(180deg,rgba(4,7,15,0) 45%,rgba(4,7,15,.85)),linear-gradient(110deg,rgba(30,123,255,.3),rgba(4,7,15,0) 60%),var(--oa);background-size:cover,cover,var(--sz);background-position:center,center,var(--pos)}
 #online .tile.soon{filter:saturate(.7)}
 #online .tile .bd{position:absolute;top:1.6vh;right:1vw;padding:.3vh .8vw;border-radius:99px;background:rgba(4,7,15,.72);border:1px solid rgba(242,245,250,.45);color:var(--ice);font-size:clamp(10px,1.7vh,15px);font-weight:700;letter-spacing:.16em;font-style:normal}
+#t0,#t1{width:40vw;min-width:0;flex:none;box-sizing:border-box}#setup .teams{align-items:stretch}#t0 .cl2,#t1 .cl2,#t0 .cl3,#t1 .cl3{flex:1 1 0;min-width:0;box-sizing:border-box}#t0 .cl2 b,#t1 .cl2 b,#t0 .cl2 span,#t1 .cl2 span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}#t0 .ar,#t1 .ar{flex:none}.stars{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -391,7 +392,7 @@ function seg(id,items,get,set){const el=$(id);el.innerHTML='';items.forEach((t,i
 function renderSetup(){document.body.classList.toggle('lk',LG.on&&LG.wk>0);$('t0').innerHTML=card(0);$('t1').innerHTML=card(1);
   seg('sdur',DURS.map(x=>x+' min'),()=>DURS.indexOf(dur),i=>dur=DURS[i]);seg('sdif',DIF.map(d=>d.n),()=>dif,i=>dif=i);seg('sstd',STD.map(x=>x.n),()=>stad,i=>stad=i);seg('sfmt',FMTS.map(x=>x.n),()=>fmt,i=>fmt=i)}
 $('setup').addEventListener('click',e=>{const b=e.target.closest('.ar');if(!b)return;const i=+b.dataset.i,d=+b.dataset.d,n=TEAMS.length;
-  if(LG.on){if(LG.wk)return;sel[0]=(sel[0]+d+n)%n;sel[1]=lgOpp(sel[0])}else{sel[i]=(sel[i]+d+n)%n;if(sel[i]==sel[1-i])sel[1-i]=(sel[1-i]+d+n)%n}renderSetup()});
+  if(LG.on){if(LG.wk)return;sel[0]=(sel[0]+d+n)%n;sel[1]=lgOpp(sel[0])}else{sel[i]=(sel[i]+d+n)%n;if(sel[i]==sel[1-i])sel[i]=(sel[i]+d+n)%n}renderSetup()});
 function applyTeams(){for(let t=0;t<2;t++){const T=TEAMS[sel[t]];COL[t]=T.col;TR[t]=T.tr;GKC[t]=T.gk;NC[t]=T.nc;NAME[t]=T.name}}
 $('sback').onclick=()=>LG.on&&LG.wk?(renderLg(),show('league')):show('devs');$('sgo').onclick=()=>start();
 
