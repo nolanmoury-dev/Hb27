@@ -717,7 +717,7 @@ $('accFg').onclick=async()=>{const n=$('accP').value.trim(),e=$('accE');
       await H.say('Bien. Choisis maintenant ton nouveau mot de passe (6 caractères minimum).');
       let w;for(;;){w=await H.ask([{ph:'Nouveau mot de passe',type:'password'},{ph:'Confirmer le mot de passe',type:'password'}],'CHANGER');if(!w)return H.close(null);
         if(w[0].length<6)await H.say('Trop court ! 6 caractères minimum.');else if(w[0]!==w[1])await H.say('Les deux mots de passe sont différents.');else break}
-      try{await api('reset',{pseudo:n,answer:a[0],password:w[0]});await H.say('Et voilà, mot de passe changé ! Va te reconnecter.');await H.pause(1600);return H.close('ok')}
+      try{await api('pwd_reset',{pseudo:n,answer:a[0],password:w[0]});await H.say('Et voilà, mot de passe changé ! Va te reconnecter.');await H.pause(1600);return H.close('ok')}
       catch(x){if(x.status===403||x.status===401){if(i<2){await H.say('Mauvaise réponse ! Je te repose la question : '+q);continue}await H.say('Trois mauvaises réponses… Reviens plus tard.');await H.pause(1500);return H.close(null)}
         await H.say(x.message||'Erreur serveur.');await H.pause(1800);return H.close(null)}
     }
