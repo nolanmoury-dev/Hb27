@@ -237,8 +237,12 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
   <div class="mini"><button id="dback" data-back>RETOUR</button><button class="go" id="dgo">SUIVANT</button></div></div></section>
 
 <section id="acc" class="scr"><div class="srow"><h2 id="accT">CRÉE TON COMPTE</h2><div class="sub">HB27 · PROFIL</div>
-  <div class="accf"><input id="accP" placeholder="Pseudo" maxlength="16" autocomplete="username"><input id="accW" type="password" placeholder="Mot de passe" autocomplete="current-password"><input id="accW2" type="password" placeholder="Confirmer le mot de passe"></div>
+  <div class="accf"><input id="accP" placeholder="Pseudo" maxlength="16" autocomplete="username"><input id="accW" type="password" placeholder="Mot de passe" autocomplete="current-password"><input id="accW2" type="password" placeholder="Confirmer le mot de passe"><input id="accQ" maxlength="80" placeholder="Question secrète (ex : ton premier club ?)" autocomplete="off"><input id="accR" maxlength="40" placeholder="Ta réponse secrète" autocomplete="off"></div>
   <div class="note" id="accE"></div><div class="mini"><button id="accSw">Changer de compte</button><button id="accFg" style="display:none">Mot de passe oublié ?</button><button id="accOff" style="display:none">Jouer hors ligne</button><button class="go" id="accGo">VALIDER</button></div></div></section>
+
+<section id="sec" class="scr"><div class="srow"><h2>QUESTION SECRÈTE</h2><div class="sub">HB27 · SÉCURITÉ</div>
+  <div class="accf"><input id="secQ" maxlength="80" placeholder="Ta question secrète" autocomplete="off"><input id="secR" maxlength="40" placeholder="Ta réponse" autocomplete="off"></div>
+  <div class="note" id="secE">Elle sert à retrouver ton compte si tu oublies ton mot de passe.</div><div class="mini"><button id="secLater">Plus tard</button><button class="go" id="secGo">ENREGISTRER</button></div></div></section>
 
 <section id="online" class="scr">
   <div class="topbar"><button class="avt" id="oavt" aria-label="Profil et réglages"></button><span class="avn" id="oavn"></span><div class="brand">HB<em>27</em><small>LE JEU DE HANDBALL</small></div><div class="tabs"><button class="tab" id="oHome" data-back>ACCUEIL</button><button class="tab" id="oLg">CARRIÈRE</button><button class="tab on" id="oOn">EN LIGNE</button><button class="tab" id="oCtl">COMMANDES</button><button class="tab" id="oSet">RÉGLAGES</button></div></div>
@@ -442,16 +446,16 @@ async function api(a,d,u){const r=await fetch(u||'/api/auth',{method:'POST',head
 const setUser=u=>{ACC=u?{n:u.pseudo,av:u.av||'',role:u.role,pts:u.points,pl:u.played}:null;setAvt()};
 function setAvt(){for(const [i,n] of [['avt','avn'],['oavt','oavn']]){const a=$(i);a.style.backgroundImage=ACC&&ACC.av?`url(${ACC.av})`:'';a.textContent=ACC&&!ACC.av?ACC.n[0].toUpperCase():'';$(n).textContent=ACC?ACC.n:''}}
 let accFails=0;
-function renderAcc(m){if(m!=null)accMode=m;const c=accMode===0,rs=accMode===2;$('accT').textContent=rs?'NOUVEAU MOT DE PASSE':c?'CRÉE TON COMPTE':'CONNEXION';$('accW2').style.display=c||rs?'':'none';$('accW').placeholder=rs?'Nouveau mot de passe':'Mot de passe';$('accSw').textContent=rs?'Retour à la connexion':c?'J\'ai déjà un compte':'Créer un compte';$('accOff').style.display='none';$('accFg').style.display=accMode===1&&accFails>=2?'':'none';$('accW').value=$('accP').value=$('accW2').value='';$('accE').textContent=rs?'Entre ton pseudo et choisis un nouveau mot de passe.':c?'Un seul compte, valable sur tous tes appareils.':'Entre ton pseudo et ton mot de passe.';$('accGo').disabled=false}
+function renderAcc(m){if(m!=null)accMode=m;const c=accMode===0;$('accT').textContent=c?'CRÉE TON COMPTE':'CONNEXION';$('accW2').style.display=$('accQ').style.display=$('accR').style.display=c?'':'none';$('accSw').textContent=c?'J\'ai déjà un compte':'Créer un compte';$('accOff').style.display='none';$('accFg').style.display=accMode===1&&accFails>=2?'':'none';$('accW').value=$('accP').value=$('accW2').value=$('accQ').value=$('accR').value='';$('accE').textContent=c?'Un seul compte, valable sur tous tes appareils.':'Entre ton pseudo et ton mot de passe.';$('accGo').disabled=false}
 function toAcc(m){renderAcc(m);show('acc');setTimeout(()=>$('accP').focus(),100)}
-async function afterLoad(){if(TOK){try{const j=await api('me');setUser(j.user);return show('menu')}catch(e){if(e.status===401||e.status===403)tokSave('');else{/* serveur injoignable : on propose le mode hors ligne */}}}
+async function afterLoad(){if(TOK){try{const j=await api('me');setUser(j.user);return show(needSecret(j.user)?'sec':'menu')}catch(e){if(e.status===401||e.status===403)tokSave('');else{/* serveur injoignable : on propose le mode hors ligne */}}}
   toAcc(0);if(TOK){$('accE').textContent='Serveur injoignable pour l\'instant.';$('accOff').style.display=''}}
 /* ---------- animation de connexion (3D) : tir en suspension face au gardien ----------
    Vue large sur la zone des 6 m, puis le joueur prend son élan depuis les 9 m, saute et tire.
    Réussite : le gardien plonge du mauvais côté, le filet se gonfle, le public saute.
    Échec    : le gardien repousse le ballon. */
-function shotScene(ok,title,sub){return new Promise(done=>{
-  if(!window.THREE){done();return}
+function shotScene(ok,title,sub,TK){return new Promise(done=>{
+  if(!window.THREE){done(TK?'nothree':undefined);return}
   const GZ=-10,SD=Math.random()<.5?-1:1,CS=-SD,KD=ok?-SD:SD,sd0=(typeof stad==='number'&&STD[stad])?stad:0,fc=STD[sd0].f,V3=THREE.Vector3;
   const sm=x=>{x=x<0?0:x>1?1:x;return x*x*(3-2*x)},L=(a,b,k)=>a+(b-a)*k,cl01=x=>x<0?0:x>1?1:x,ea=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a));
 
@@ -605,10 +609,44 @@ function shotScene(ok,title,sub){return new Promise(done=>{
 
   const fit=()=>{const w=innerWidth,h=innerHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.fov=w/h<1?62:48;cam.updateProjectionMatrix()};fit();addEventListener('resize',fit);
   let stop=0,shown=0,lt=performance.now();const t0=lt,cp=new V3(),cl=new V3();
-  const end=()=>{if(stop)return;stop=1;removeEventListener('resize',fit);try{r.dispose();r.forceContextLoss()}catch(e){}ov.remove();done()};
-  ov.onclick=()=>{if(!ok||performance.now()-t0>1500)end()}; // un tap permet de passer l'animation
+  const end=v=>{if(stop)return;stop=1;removeEventListener('resize',fit);try{r.dispose();r.forceContextLoss()}catch(e){}ov.remove();done(TK&&(typeof v==='string'||v===null)?v:undefined)};
+  ov.onclick=()=>{if(TK)return;if(!ok||performance.now()-t0>1500)end()}; // un tap permet de passer l'animation
+  /* ----- scène « gardien qui parle » (mot de passe oublié) : il est debout, droit, et sa bouche bouge ----- */
+  let spk={txt:'',t0:0,res:null},bub=null,frm=null;
+  const TQ={th0:0,th1:0,kn0:.03,kn1:.03,sh0:.04,sh1:.04,sz0:-.1,sz1:.1,el0:-.12,el1:-.12,brx:0,bry:0,brz:0};
+  if(TK){
+    shO.g.visible=dfO[0].g.visible=dfO[1].g.visible=rfO.g.visible=false;ball.visible=false;bug.style.display='none';
+    const mk=(tag,css,par)=>{const e=document.createElement(tag);e.style.cssText=css;if(par)par.appendChild(e);return e};
+    const dl=mk('div','position:absolute;left:0;right:0;bottom:0;padding:40px 5% calc(16px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(3,6,13,.94) 35%);display:flex;flex-direction:column;align-items:center;gap:10px',ov);
+    bub=mk('div','max-width:600px;width:100%;background:rgba(10,22,48,.94);border:2px solid #1e7bff;border-radius:10px;padding:10px 14px;font-size:min(5vw,24px);font-weight:700;font-style:italic;line-height:1.2;min-height:2.6em;text-align:left;box-sizing:border-box',dl);
+    frm=mk('div','max-width:600px;width:100%;display:flex;flex-direction:column;gap:8px;box-sizing:border-box',dl);
+    const say=txt=>new Promise(res=>{frm.innerHTML='';spk={txt,t0:performance.now(),res}});
+    const ask=(fields,label)=>new Promise(res=>{frm.innerHTML='';
+      const ins=fields.map(f=>{const i=mk('input','font:inherit;font-size:min(5vw,22px);font-weight:500;padding:10px 12px;border-radius:8px;border:2px solid rgba(142,160,189,.5);background:rgba(4,8,16,.9);color:#f2f5fa;width:100%;box-sizing:border-box;user-select:text;-webkit-user-select:text',frm);i.type=f.type||'text';i.placeholder=f.ph;i.maxLength=f.max||60;i.autocomplete='off';return i});
+      const row=mk('div','display:flex;gap:10px',frm);
+      const bc=mk('button','flex:1;padding:10px;border:2px solid rgba(142,160,189,.5);border-radius:8px;font-size:min(4.6vw,20px);font-weight:700;letter-spacing:.1em',row);bc.textContent='ANNULER';
+      const bo=mk('button','flex:1;padding:10px;border-radius:8px;background:#1e7bff;font-size:min(4.6vw,20px);font-weight:700;letter-spacing:.1em',row);bo.textContent=label||'OK';
+      const go=()=>{const v=ins.map(i=>i.value);if(v.some(x=>!x.trim()))return;frm.innerHTML='';res(v)};
+      bo.onclick=go;bc.onclick=()=>{frm.innerHTML='';res(null)};
+      ins.forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')go()}));
+      setTimeout(()=>ins[0].focus(),50)});
+    const H={say,ask,pause:ms=>new Promise(r=>setTimeout(r,ms)),close:v=>end(v)};
+    setTimeout(()=>{Promise.resolve().then(()=>TK(H)).then(()=>end(null)).catch(()=>end(null))},700);
+  }
+  const talkFrame=(t,now)=>{
+    const k=Math.floor((now-spk.t0)/40),sp=k<spk.txt.length,shown_=spk.txt.slice(0,k);
+    if(bub&&bub.textContent!==shown_)bub.textContent=shown_;
+    if(!sp&&spk.res){const rs=spk.res;spk.res=null;setTimeout(rs,300)}
+    const m=sp?Math.abs(Math.sin(t*15))*(.55+.45*Math.abs(Math.sin(t*4.1+1))):0,g=gkO.mouth;
+    g.scale.set(1+.2*m,1+9*m,1+3*m);g.position.y=-.07-.011*m;g.material.color.setHex(m>.25?0x3a0f10:0xa8544c);
+    gkO.hd.rotation.x=sp?.05*Math.sin(t*6):0;gkO.hd.rotation.z=sp?.04*Math.sin(t*3.3):0;
+    const br=Math.sin(t*2)*.01;
+    place(gkO,0,0,GZ+1.7,0,Object.assign({},TQ,{brx:br,sh0:.04+br*3,sh1:.04+br*3}));
+    const por=innerWidth<innerHeight;cam.position.set(0,1.55,GZ+(por?4.9:4.5));cam.lookAt(0,por?1.05:1.3,GZ+1.7);
+    for(let i=0;i<cd.length;i++){const c=cd[i];dm.position.set(c.x,c.y+.35+Math.sin(t*2+c.ph)*.03,c.z);dm.updateMatrix();crowd.setMatrixAt(i,dm.matrix)}crowd.instanceMatrix.needsUpdate=true};
 
   (function loop(){if(stop)return;const now=performance.now(),t=(now-t0)/1000,dt=Math.min(.05,(now-lt)/1000);lt=now;
+    if(TK){talkFrame(t,now);r.render(sc,cam);requestAnimationFrame(loop);return}
     if(!fl.c){fl.c=1;bug.style.opacity=1}
     /* poses */
     const sp=shooter(t);place(shO,sp.x,sp.y,sp.z,sp.ry,sp.q);
@@ -651,15 +689,43 @@ const cleanErr=x=>{if(!x.status)return{t:'CONNEXION ÉCHOUÉE',d:'Serveur injoig
   return{t:'CONNEXION ÉCHOUÉE',d:m||'Erreur serveur'}};
 $('accGo').onclick=async()=>{const n=$('accP').value.trim(),w=$('accW').value,e=$('accE'),b=$('accGo');
   if(n.length<3)return e.textContent='Pseudo : 3 caractères minimum.';if(w.length<6)return e.textContent='Mot de passe : 6 caractères minimum.';
-  if(accMode!==1&&w!==$('accW2').value)return e.textContent='Les deux mots de passe sont différents.';
+  if(accMode===0&&w!==$('accW2').value)return e.textContent='Les deux mots de passe sont différents.';
+  if(accMode===0&&$('accQ').value.trim().length<5)return e.textContent='Question secrète : 5 caractères minimum.';
+  if(accMode===0&&$('accR').value.trim().length<2)return e.textContent='Réponse secrète : 2 caractères minimum.';
   b.disabled=true;e.textContent='Connexion au serveur…';
-  if(accMode===2){try{await api('reset',{pseudo:n,password:w});accFails=0;renderAcc(1);$('accP').value=n;$('accE').textContent='Mot de passe changé. Connecte-toi avec le nouveau.'}catch(x){e.textContent=x.status?x.message:'Serveur injoignable : vérifie ta connexion internet.'}b.disabled=false;return}
-  try{const j=await api(accMode===0?'register':'login',{pseudo:n,password:w});accFails=0;tokSave(j.token);setUser(j.user);OFFL=false;e.textContent='';await shotScene(true,'BUT ! CONNEXION RÉUSSIE','Bienvenue '+j.user.pseudo);show('menu')}
+  try{const j=await api(accMode===0?'register':'login',Object.assign({pseudo:n,password:w},accMode===0?{secretQ:$('accQ').value.trim(),secretA:$('accR').value.trim()}:{}));accFails=0;tokSave(j.token);setUser(j.user);OFFL=false;e.textContent='';await shotScene(true,'BUT ! CONNEXION RÉUSSIE','Bienvenue '+j.user.pseudo);show(needSecret(j.user)?'sec':'menu')}
   catch(x){const c=cleanErr(x);e.textContent=c.d;if(!x.status)$('accOff').style.display='';if(accMode===1&&(x.status===401||x.status===403||x.status===404)){accFails++;if(accFails>=2)$('accFg').style.display=''}await shotScene(false,c.t,c.d)}b.disabled=false};
 $('accOff').onclick=()=>{OFFL=true;tokSave('');ACC={n:'Invité',av:'',role:'player'};setAvt();show('menu')};
 document.querySelectorAll('#acc input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')$('accGo').click()}));
-$('accSw').onclick=()=>renderAcc(accMode===0||accMode===2?1:0);
-$('accFg').onclick=()=>{const n=$('accP').value.trim();renderAcc(2);$('accP').value=n;setTimeout(()=>$((n?'accW':'accP')).focus(),100)};
+$('accSw').onclick=()=>renderAcc(accMode===0?1:0);
+$('accFg').onclick=async()=>{const n=$('accP').value.trim(),e=$('accE');
+  if(n.length<3){e.textContent='Entre ton pseudo, puis clique sur « Mot de passe oublié ? ».';return}
+  e.textContent='Le gardien arrive…';let q='',err='';
+  try{q=(await api('secret_q',{pseudo:n})).question||''}catch(x){err=x.status?x.message:'Serveur injoignable : vérifie ta connexion internet.'}
+  if(err){e.textContent=err;return}
+  const r=await shotScene(false,'','',async H=>{
+    if(!q){await H.say('Ton compte n’a pas encore de question secrète. Connecte-toi une fois avec ton mot de passe pour en ajouter une.');await H.pause(2200);return H.close(null)}
+    await H.say('Salut '+n+' ! Mot de passe oublié ? Pas de panique. Réponds à ma question : '+q);
+    for(let i=0;i<3;i++){
+      const a=await H.ask([{ph:'Ta réponse',max:40}],'RÉPONDRE');if(!a)return H.close(null);
+      await H.say('Bien. Choisis maintenant ton nouveau mot de passe (6 caractères minimum).');
+      let w;for(;;){w=await H.ask([{ph:'Nouveau mot de passe',type:'password'},{ph:'Confirmer le mot de passe',type:'password'}],'CHANGER');if(!w)return H.close(null);
+        if(w[0].length<6)await H.say('Trop court ! 6 caractères minimum.');else if(w[0]!==w[1])await H.say('Les deux mots de passe sont différents.');else break}
+      try{await api('reset',{pseudo:n,answer:a[0],password:w[0]});await H.say('Et voilà, mot de passe changé ! Va te reconnecter.');await H.pause(1600);return H.close('ok')}
+      catch(x){if(x.status===403||x.status===401){if(i<2){await H.say('Mauvaise réponse ! Je te repose la question : '+q);continue}await H.say('Trois mauvaises réponses… Reviens plus tard.');await H.pause(1500);return H.close(null)}
+        await H.say(x.message||'Erreur serveur.');await H.pause(1800);return H.close(null)}
+    }
+  });
+  if(r==='nothree'){e.textContent='La 3D est indisponible : impossible de réinitialiser ici.';return}
+  if(r==='ok'){accFails=0;renderAcc(1);$('accP').value=n;$('accE').textContent='Mot de passe changé. Connecte-toi avec le nouveau.'}else e.textContent=''};
+const needSecret=u=>!!u&&(u.sq===''||u.sq===null);
+$('secLater').onclick=()=>show('menu');
+$('secGo').onclick=async()=>{const q=$('secQ').value.trim(),a=$('secR').value.trim(),e=$('secE'),b=$('secGo');
+  if(q.length<5)return e.textContent='Question : 5 caractères minimum.';if(a.length<2)return e.textContent='Réponse : 2 caractères minimum.';
+  b.disabled=true;e.textContent='Enregistrement…';
+  try{await api('set_secret',{question:q,answer:a});e.textContent='';$('secR').value='';show('menu')}catch(x){e.textContent=x.status?x.message:'Serveur injoignable : réessaie plus tard.'}b.disabled=false};
+document.querySelectorAll('#sec input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')$('secGo').click()}));
+$('secQ').value='Quel est le nom de ton premier club ?';
 $('avt').onclick=()=>openSet('menu');
 $('spOut').onclick=()=>{tokSave('');ACC=null;OFFL=false;setAvt();toAcc(1)};$('spPh').onclick=()=>$('spF').click();
 $('spF').onchange=e=>{const fl=e.target.files[0];if(!fl||!ACC)return;const im=new Image();im.onload=async()=>{const c=document.createElement('canvas');c.width=c.height=128;const m=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);const v=c.toDataURL('image/jpeg',.82);
@@ -1034,10 +1100,10 @@ function mkP(sc){const g=new THREE.Group(),M=(c,r)=>new THREE.MeshStandardMateri
   sph(.105,o.jer,-.255,.49,0,o.tor,1,1.05,.95);sph(.105,o.jer,.255,.49,0,o.tor,1,1.05,.95);
   add(new THREE.Mesh(new THREE.TorusGeometry(.07,.014,8,20),o.trim),0,.595,.005,o.tor).rotation.x=Math.PI/2;
   cyl(.052,.062,.12,o.skin,0,.64,0,o.tor);
-  const hd=pv(0,.77,0,o.tor);sph(.118,o.skin,0,0,0,hd,.94,1.12,1.02);sph(.085,o.skin,0,-.07,.025,hd,1,.8,.95);
+  const hd=pv(0,.77,0,o.tor);o.hd=hd;sph(.118,o.skin,0,0,0,hd,.94,1.12,1.02);sph(.085,o.skin,0,-.07,.025,hd,1,.8,.95);
   sph(.02,o.skin,0,-.012,.118,hd,1,1.2,1.1);sph(.03,o.skin,-.115,-.005,0,hd,.5,1,.8);sph(.03,o.skin,.115,-.005,0,hd,.5,1,.8);
   for(const s of[-1,1]){sph(.02,wh,s*.045,.018,.1,hd,1.3,.8,.6);sph(.0105,eye,s*.045,.018,.113,hd);add(new THREE.Mesh(new THREE.BoxGeometry(.045,.009,.01),o.hair),s*.045,.05,.108,hd)}
-  add(new THREE.Mesh(new THREE.BoxGeometry(.05,.008,.008),M(0xa8544c,.6)),0,-.07,.108,hd);
+  o.mouth=add(new THREE.Mesh(new THREE.BoxGeometry(.05,.008,.008),M(0xa8544c,.6)),0,-.07,.108,hd);
   add(new THREE.Mesh(new THREE.SphereGeometry(.13,20,12,0,6.2832,0,1.6),o.hair),0,.035,-.02,hd,1,1.05,1.04);
   o.hb=sph(.1,o.hair,0,-.01,-.075,hd,1,1.05,.8);o.bd=sph(.1,o.hair,0,-.07,.03,hd,1,.62,.95);
   o.arms=[-1,1].map(s=>{const sh=pv(s*.29,.5,0,o.tor);sh.rotation.order='ZXY';cyl(.07,.056,.2,o.jer,0,-.08,0,sh);cyl(.058,.058,.02,o.trim,0,-.18,0,sh);cyl(.05,.044,.14,o.skin,0,-.25,0,sh);
