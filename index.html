@@ -244,6 +244,11 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
   <div class="accf"><input id="secQ" maxlength="80" placeholder="Ta question secrète" autocomplete="off"><input id="secR" maxlength="40" placeholder="Ta réponse" autocomplete="off"></div>
   <div class="note" id="secE">Elle sert à retrouver ton compte si tu oublies ton mot de passe.</div><div class="mini"><button id="secLater">Plus tard</button><button class="go" id="secGo">ENREGISTRER</button></div></div></section>
 
+<section id="fav" class="scr"><style>#fav .crest{width:38px;height:46px}</style><div class="srow"><h2>BIENVENUE !</h2><div class="sub">TON ÉQUIPE FAVORITE</div>
+  <div id="favT" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;max-height:38vh;overflow:auto;touch-action:pan-y;width:100%"></div>
+  <div class="sub">TON STADE</div><div id="favS" style="display:flex;gap:8px;width:100%"></div>
+  <div class="mini"><button class="go" id="favGo">VALIDER</button></div></div></section>
+
 <section id="online" class="scr">
   <div class="topbar"><button class="avt" id="oavt" aria-label="Profil et réglages"></button><span class="avn" id="oavn"></span><div class="brand">HB<em>27</em><small>LE JEU DE HANDBALL</small></div><div class="tabs"><button class="tab" id="oHome" data-back>ACCUEIL</button><button class="tab" id="oLg">CARRIÈRE</button><button class="tab on" id="oOn">EN LIGNE</button><button class="tab" id="oCtl">COMMANDES</button><button class="tab" id="oSet">RÉGLAGES</button></div></div>
   <div class="tiles" id="onHub"></div>
@@ -265,7 +270,8 @@ button.pf{outline:3px solid var(--blue);outline-offset:3px}
 <div class="lgfoot"><button id="bdBack">Retour</button></div></section>
 
 <section id="adm" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">Administration</div></div>
-<div class="lgpanel"><div class="lgph"><b>COMPTES</b><span id="admE"></span></div><div class="zb" id="admL"></div></div>
+<div class="lgpanel"><div class="lgph"><b>COMPTES</b><span id="admE"></span></div>
+<div id="admMt" style="display:flex;gap:8px;flex-wrap:wrap;padding:6px 0"><button id="admMg" style="padding:6px 10px;border:2px solid rgba(142,160,189,.4);border-radius:6px;font-weight:700">Maintenance avec gardien</button><button id="admMn" style="padding:6px 10px;border:2px solid rgba(142,160,189,.4);border-radius:6px;font-weight:700">Maintenance sans gardien</button><button id="admMo" style="padding:6px 10px;border:2px solid rgba(142,160,189,.4);border-radius:6px;font-weight:700">Fin de maintenance</button><button id="admMp" style="padding:6px 10px;border:2px solid rgba(142,160,189,.4);border-radius:6px;font-weight:700">Aperçu</button></div><div class="zb" id="admL"></div></div>
 <div class="lgfoot"><button id="admBack">Retour</button><button id="admRs">Réinitialiser le classement</button></div></section>
 
 <section id="league" class="scr"><div class="lgtop"><div class="lgo">HB<em>27</em></div><div class="lgt">Carrière</div><span class="lgsep"></span><div class="seg" id="lgTabs"></div></div>
@@ -448,7 +454,7 @@ function setAvt(){for(const [i,n] of [['avt','avn'],['oavt','oavn']]){const a=$(
 let accFails=0;
 function renderAcc(m){if(m!=null)accMode=m;const c=accMode===0;$('accT').textContent=c?'CRÉE TON COMPTE':'CONNEXION';$('accW2').style.display=$('accQ').style.display=$('accR').style.display=c?'':'none';$('accSw').textContent=c?'J\'ai déjà un compte':'Créer un compte';$('accOff').style.display='none';$('accFg').style.display=accMode===1&&accFails>=2?'':'none';$('accW').value=$('accP').value=$('accW2').value=$('accQ').value=$('accR').value='';$('accE').textContent=c?'Un seul compte, valable sur tous tes appareils.':'Entre ton pseudo et ton mot de passe.';$('accGo').disabled=false}
 function toAcc(m){renderAcc(m);show('acc');setTimeout(()=>$('accP').focus(),100)}
-async function afterLoad(){if(TOK){try{const j=await api('me');setUser(j.user);return show(needSecret(j.user)?'sec':'menu')}catch(e){if(e.status===401||e.status===403)tokSave('');else{/* serveur injoignable : on propose le mode hors ligne */}}}
+async function afterLoad(){if(TOK){try{const j=await api('me');setUser(j.user);return goAfter(j.user)}catch(e){if(e.status===401||e.status===403)tokSave('');else{/* serveur injoignable : on propose le mode hors ligne */}}}
   toAcc(0);if(TOK){$('accE').textContent='Serveur injoignable pour l\'instant.';$('accOff').style.display=''}}
 /* ---------- animation de connexion (3D) : tir en suspension face au gardien ----------
    Vue large sur la zone des 6 m, puis le joueur prend son élan depuis les 9 m, saute et tire.
@@ -693,9 +699,9 @@ $('accGo').onclick=async()=>{const n=$('accP').value.trim(),w=$('accW').value,e=
   if(accMode===0&&$('accQ').value.trim().length<5)return e.textContent='Question secrète : 5 caractères minimum.';
   if(accMode===0&&$('accR').value.trim().length<2)return e.textContent='Réponse secrète : 2 caractères minimum.';
   b.disabled=true;e.textContent='Connexion au serveur…';
-  try{const j=await api(accMode===0?'register':'login',Object.assign({pseudo:n,password:w},accMode===0?{secretQ:$('accQ').value.trim(),secretA:$('accR').value.trim()}:{}));accFails=0;tokSave(j.token);setUser(j.user);OFFL=false;e.textContent='';await shotScene(true,'BUT ! CONNEXION RÉUSSIE','Bienvenue '+j.user.pseudo);show(needSecret(j.user)?'sec':'menu')}
+  try{const j=await api(accMode===0?'register':'login',Object.assign({pseudo:n,password:w},accMode===0?{secretQ:$('accQ').value.trim(),secretA:$('accR').value.trim()}:{}));accFails=0;tokSave(j.token);setUser(j.user);OFFL=false;e.textContent='';await shotScene(true,'BUT ! CONNEXION RÉUSSIE','Bienvenue '+j.user.pseudo);goAfter(j.user)}
   catch(x){const c=cleanErr(x);e.textContent=c.d;if(!x.status)$('accOff').style.display='';if(accMode===1&&(x.status===401||x.status===403||x.status===404)){accFails++;if(accFails>=2)$('accFg').style.display=''}await shotScene(false,c.t,c.d)}b.disabled=false};
-$('accOff').onclick=()=>{OFFL=true;tokSave('');ACC={n:'Invité',av:'',role:'player'};setAvt();show('menu')};
+$('accOff').onclick=()=>{OFFL=true;tokSave('');ACC={n:'Invité',av:'',role:'player'};setAvt();goAfter(null)};
 document.querySelectorAll('#acc input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')$('accGo').click()}));
 $('accSw').onclick=()=>renderAcc(accMode===0?1:0);
 $('accFg').onclick=async()=>{const n=$('accP').value.trim(),e=$('accE');
@@ -719,13 +725,50 @@ $('accFg').onclick=async()=>{const n=$('accP').value.trim(),e=$('accE');
   if(r==='nothree'){e.textContent='La 3D est indisponible : impossible de réinitialiser ici.';return}
   if(r==='ok'){accFails=0;renderAcc(1);$('accP').value=n;$('accE').textContent='Mot de passe changé. Connecte-toi avec le nouveau.'}else e.textContent=''};
 const needSecret=u=>!!u&&(u.sq===''||u.sq===null);
-$('secLater').onclick=()=>show('menu');
+$('secLater').onclick=()=>goAfter(null);
 $('secGo').onclick=async()=>{const q=$('secQ').value.trim(),a=$('secR').value.trim(),e=$('secE'),b=$('secGo');
   if(q.length<5)return e.textContent='Question : 5 caractères minimum.';if(a.length<2)return e.textContent='Réponse : 2 caractères minimum.';
   b.disabled=true;e.textContent='Enregistrement…';
-  try{await api('set_secret',{question:q,answer:a});e.textContent='';$('secR').value='';show('menu')}catch(x){e.textContent=x.status?x.message:'Serveur injoignable : réessaie plus tard.'}b.disabled=false};
+  try{await api('set_secret',{question:q,answer:a});e.textContent='';$('secR').value='';goAfter(null)}catch(x){e.textContent=x.status?x.message:'Serveur injoignable : réessaie plus tard.'}b.disabled=false};
 document.querySelectorAll('#sec input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')$('secGo').click()}));
 $('secQ').value='Quel est le nom de ton premier club ?';
+
+/* ---------- première entrée : équipe favorite + stade (enregistrés sur cet appareil, par compte) ---------- */
+const favKey=()=>OFFL||!ACC?'_':ACC.n;
+const favGet=()=>{const v=(CFG.fav||{})[favKey()];return v==null||!TEAMS[v]?null:v};
+const stdGet=()=>{const v=(CFG.fst||{})[favKey()];return v==null||!STD[v]?0:v};
+let favPick=0,stdPick=0;
+function goAfter(u){maintPoll();if(needSecret(u))return show('sec');if(favGet()==null)return openFav();sel[0]=favGet();stad=stdGet();show('menu')}
+function openFav(){const f=favGet();favPick=f==null?0:f;stdPick=stdGet();renderFav();show('fav')}
+function renderFav(){
+  const bs=on=>'padding:8px 6px;border:2px solid '+(on?'#1e7bff':'rgba(142,160,189,.35)')+';border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:15px;font-weight:700;background:'+(on?'rgba(30,123,255,.22)':'rgba(10,22,48,.6)');
+  $('favT').innerHTML=TEAMS.map((T,i)=>`<button data-i="${i}" style="${bs(i===favPick)}"><span style="display:block">${crest(T)}</span>${esc(T.name)}</button>`).join('');
+  $('favS').innerHTML=STD.map((S,i)=>`<button data-s="${i}" style="${bs(i===stdPick)};flex:1">${esc(S.n)}</button>`).join('');
+  $('favT').querySelectorAll('button').forEach(b=>b.onclick=()=>{favPick=+b.dataset.i;renderFav()});
+  $('favS').querySelectorAll('button').forEach(b=>b.onclick=()=>{stdPick=+b.dataset.s;renderFav()})}
+$('favGo').onclick=()=>{const k=favKey();CFG.fav=Object.assign({},CFG.fav||{},{[k]:favPick});CFG.fst=Object.assign({},CFG.fst||{},{[k]:stdPick});save();sel[0]=favPick;stad=stdPick;show('menu')};
+
+/* ---------- écran de maintenance (lancé par l'opérateur) : échauffement d'avant-match en 2 contre 2, en boucle ---------- */
+const mtEl=document.createElement('div');mtEl.id='maint';mtEl.style.cssText='position:fixed;inset:0;z-index:9000;display:none;pointer-events:auto;font-family:"Barlow Condensed",Impact,sans-serif;text-align:center';
+mtEl.innerHTML='<div style="padding:calc(14px + env(safe-area-inset-top,0px)) 5% 40px;background:linear-gradient(rgba(3,6,13,.92),transparent)"><div style="font-size:min(4vw,16px);letter-spacing:.4em;color:#9fc2ff">HB27 · MAINTENANCE</div><div style="font-size:min(8vw,46px);font-weight:800;font-style:italic;line-height:1">MISE À JOUR EN COURS</div><div style="font-size:min(4vw,18px);opacity:.85;margin-top:4px">Le jeu revient dans quelques instants. Profite de l’échauffement !</div></div><button id="mtX" style="display:none;position:absolute;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));padding:8px 16px;border:2px solid rgba(142,160,189,.6);border-radius:8px;background:rgba(4,8,16,.8);font-weight:700;font-size:18px">QUITTER L’APERÇU</button>';
+document.body.appendChild(mtEl);
+function maintRound(){start();state='intro';it=IT;
+  if(MAINT&&!MAINT.gk)for(const p of P)if(p.i===0){p.hide=true;p.x=p.tx=p.hx=-60}}
+function maintBegin(gk,pv){
+  if(MAINT){MAINT.gk=gk;return}
+  const f=favGet(),fv=f==null?0:f;
+  MAINT={gk,pv:!!pv,sv:{fmt,sel:sel.slice(),mode,lg:LG.on}};
+  fmt=0;mode=1;LG.on=false;sel=[fv,(fv+1)%TEAMS.length];wasI=false;
+  ['pause','end','halfm'].forEach(id=>{const e=$(id);if(e)e.style.display='none'});
+  mtEl.style.display='block';$('mtX').style.display=pv?'block':'none';maintRound()}
+function maintEnd(){if(!MAINT)return;const s=MAINT.sv;MAINT=null;fmt=s.fmt;sel=s.sel;mode=s.mode;LG.on=s.lg;mtEl.style.display='none';toMenu()}
+$('mtX').onclick=maintEnd;
+async function maintPoll(){if(OFFL||!TOK)return;
+  try{const j=await G('maint');if(ACC&&ACC.role==='admin')return;if(j&&j.on)maintBegin(!!j.gk);else if(MAINT&&!MAINT.pv)maintEnd()}catch(e){}}
+setInterval(maintPoll,15000);
+const mtAct=async(on,gk)=>{try{await G('admin_maint',{on,gk});$('admE').textContent=on?'Maintenance lancée pour tous les joueurs.':'Maintenance terminée.'}catch(x){$('admE').textContent=x.message}};
+$('admMg').onclick=()=>mtAct(1,1);$('admMn').onclick=()=>mtAct(1,0);$('admMo').onclick=()=>mtAct(0,0);$('admMp').onclick=()=>maintBegin(true,true);
+
 $('avt').onclick=()=>openSet('menu');
 $('spOut').onclick=()=>{tokSave('');ACC=null;OFFL=false;setAvt();toAcc(1)};$('spPh').onclick=()=>$('spF').click();
 $('spF').onchange=e=>{const fl=e.target.files[0];if(!fl||!ACC)return;const im=new Image();im.onload=async()=>{const c=document.createElement('canvas');c.width=c.height=128;const m=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);const v=c.toDataURL('image/jpeg',.82);
@@ -734,7 +777,7 @@ $('spF').onchange=e=>{const fl=e.target.files[0];if(!fl||!ACC)return;const im=ne
 
 /* ---------- équipes, classement, compétitions ---------- */
 const F5=FMTS.push({n:'5 vs 5',k:6,h:[[1,10],[11,4],[13,8],[13,12],[11,16],[16,10]],a:[[1,10],[27,4],[28,8],[28,12],[27,16],[24,10]]})-1;
-let MYT=null,BOARD=[],COMP=null,TMC='';const G=(a,d)=>api(a,d,'/api/game');
+let MAINT=null;let MYT=null,BOARD=[],COMP=null,TMC='';const G=(a,d)=>api(a,d,'/api/game');
 const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const svg=(a,b,body)=>'url(data:image/svg+xml,'+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${a}'/><stop offset='1' stop-color='${b}'/></linearGradient></defs><rect width='200' height='100' fill='url(#g)'/>${body}</svg>`).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29')+')';
 const IM={team:svg('#1e7bff','#0a1630',"<circle cx='75' cy='38' r='13' fill='#f1c8a0'/><rect x='58' y='54' width='34' height='34' rx='12' fill='#f2f5fa'/><circle cx='125' cy='38' r='13' fill='#a8714a'/><rect x='108' y='54' width='34' height='34' rx='12' fill='#d7263d'/>"),
@@ -895,7 +938,7 @@ function warm(dt){const t=IT-Math.max(0,it),N=Math.max(1,NPT-1);
     p.fx=fx;p.fy=fy;p.wp=wp;p.jt=jt;p.z=z;p.dv=dv}
   ball.own=null;ball.x=REFP.x+.3;ball.y=REFP.y;ball.z=1.05;ball.vx=ball.vy=0}
 function endIntro(){for(const p of P){p.x=p.tx;p.y=p.ty;p.wp='';p.jt=0;p.z=0;p.dv=0;p.spd=0;p.fx=p.t?-1:1;p.fy=0}WB[0].on=WB[1].on=0;const c=P[2];ball.own=c;ball.x=c.x;ball.y=c.y;ball.z=1.15;ball.vx=ball.vy=0;state='play';sfx('whistle')}
-const skipIntro=()=>{if(state==='intro'){it=0;endIntro()}};
+const skipIntro=()=>{if(state==='intro'&&!MAINT){it=0;endIntro()}};
 function introBar(t,u,cx,h){const ph=t<5?'ÉCHAUFFEMENT · FOOTING':t<10.6?'ÉCHAUFFEMENT · ÉTIREMENTS':t<15.8?'ÉCHAUFFEMENT · TIRS AU BUT':t<19?'LES ÉQUIPES SE PLACENT':"COUP D'ENVOI",bw=56*u,bx=cx-bw/2,by=h*.855,bh=7.4*u;
   ctx.globalAlpha=Math.min(1,t/.8);ctx.fillStyle='rgba(4,7,15,.84)';ctx.fillRect(bx,by,bw,bh);ctx.fillStyle='#1e7bff';ctx.fillRect(bx,by,.7*u,bh);ctx.fillRect(bx,by+bh-.6*u,bw*Math.min(1,t/IT),.6*u);
   ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle='#f2f5fa';ctx.font=`italic 800 ${3*u}px ${FONT}`;ctx.fillText(ph,bx+2*u,by+2.6*u);
@@ -903,7 +946,7 @@ function introBar(t,u,cx,h){const ph=t<5?'ÉCHAUFFEMENT · FOOTING':t<10.6?'ÉCH
   ctx.textAlign='right';ctx.fillStyle='#f2c230';ctx.font=`italic 800 ${4.4*u}px ${FONT}`;ctx.fillText(Math.max(1,Math.ceil(IT-t)),bx+bw-2*u,by+3.4*u);ctx.globalAlpha=1;ctx.textAlign='center'}
 function update(dt){
   pollPads();
-  if(state==='intro'){clrB();it-=dt;warm(dt);if(it<=0)endIntro();return}
+  if(state==='intro'){clrB();it-=dt;warm(dt);if(it<=0){if(MAINT)maintRound();else endIntro()}return}
   if(state==='half'){clrB();return}if(state==='full'){clrB();ft-=dt;if(ft<=0)finish();return}
   if(state==='goal'){clrB();gt-=dt;if(gt<=0){reset(conc);banner='';state='play'}return}
   tick2(dt);clock-=dt;pmsg=Math.max(0,pmsg-dt);if(!ball.own){lt+=dt;if(lt>5){let q=null,d=1e9;for(const r of P)if(r.i>0){const e=Math.hypot(r.x-ball.x,r.y-ball.y);if(e<d){d=e;q=r}}if(q){ball.own=q;q.hold=0}lt=0}}else lt=0;if(ball.own){ST[ball.own.t].pos+=dt;if(poss!==ball.own.t){poss=ball.own.t;pc=0}pc+=dt;if(pc>25){const q=near(1-poss,ball.x,ball.y);if(q){ball.own=q;q.hold=0;q.cd=.6}pc=0;poss=1-poss;pmsg=2;sfx('whistle')}}if(!half2&&clock<=total/2){clock=total/2;state='half';showHalf();sfx('whistle');return}if(clock<=0){clock=0;state='full';ft=6;sfx('whistle');return}
@@ -1108,6 +1151,7 @@ function mkP(sc){const g=new THREE.Group(),M=(c,r)=>new THREE.MeshStandardMateri
   o.hb=sph(.1,o.hair,0,-.01,-.075,hd,1,1.05,.8);o.bd=sph(.1,o.hair,0,-.07,.03,hd,1,.62,.95);
   o.arms=[-1,1].map(s=>{const sh=pv(s*.29,.5,0,o.tor);sh.rotation.order='ZXY';cyl(.07,.056,.2,o.jer,0,-.08,0,sh);cyl(.058,.058,.02,o.trim,0,-.18,0,sh);cyl(.05,.044,.14,o.skin,0,-.25,0,sh);
     const el=pv(0,-.31,0,sh);sph(.046,o.skin,0,0,0,el);cyl(.046,.036,.26,o.skin,0,-.14,0,el);cyl(.042,.042,.035,wh,0,-.22,0,el);sph(.05,o.skin,0,-.3,0,el,.9,1.1,.7);return{sh,el}});
+  o.cap=cyl(.078,.072,.05,M(0xffc800,.5),0,-.1,0,o.arms[0].sh);o.cap.visible=false;
   o.legs=[-1,1].map(s=>{const hp=pv(s*.1,-.02,0,o.body);cyl(.105,.115,.26,o.sho,0,-.12,0,hp);cyl(.085,.07,.22,o.skin,0,-.3,0,hp);
     const kn=pv(0,-.43,0,hp);sph(.06,o.skin,0,0,0,kn);sph(.068,o.sock,0,-.12,-.025,kn,1,1.7,.9);cyl(.062,.05,.4,o.sock,0,-.2,0,kn);
     sph(.06,o.shoe,0,-.45,.07,kn,.95,.7,2.1);add(new THREE.Mesh(new THREE.BoxGeometry(.105,.025,.27),sole),0,-.485,.065,kn);return{hp,kn}});
@@ -1183,10 +1227,10 @@ function render3(){if(!Q3)Q3=mk3();const Q=Q3,r=Q.r,now=performance.now(),dt=Mat
   for(let i=0;i<cdn.length;i++){const c=cdn[i];dm.position.set(c.x,c.y+.35+(gl?Math.abs(Math.sin(T*9+c.ph))*.4:Math.sin(T*2+c.ph)*.03),c.z);dm.scale.setScalar(hide&&i%3==0?.001:1);dm.updateMatrix();Q.crowd.setMatrixAt(i,dm.matrix)}Q.crowd.instanceMatrix.needsUpdate=true;
   [...P,REFP].forEach((p,i)=>{const o=Q.pl[i]||(Q.pl[i]=mkP(Q.sc)),pl=PL(p),jc=p.i==0?GKC[p.t]:COL[p.t],k=jc+'|'+pl.num+'|'+NC[p.t]+'|'+sel[p.t==2?0:p.t];
     if(o.key!==k){o.key=k;o.jer.color.set(jc);o.sho.color.set(jc).multiplyScalar(.45);o.sock.color.set(jc);o.shoe.color.set(p.t>1?'#111':'#f2f5fa');o.skin.color.set(skinOf(p));o.hair.color.set(HAIR[(p.t*5+p.i*3)%5]);o.trim.color.set(NC[p.t]);o.hb.visible=(p.t*7+p.i)%3===0;o.bd.visible=p.t<2&&p.i>0&&(p.t*5+p.i*2)%4===1;o.g.scale.setScalar(p.i==0?.97:.9+((p.i*7+p.t*3)%5)*.02);o.nf.material.map=o.nb.material.map=numTex(pl.num,p.i==0?'#fff':NC[p.t]);o.nf.material.needsUpdate=o.nb.material.needsUpdate=true}
-    anim3(o,p,T,dt,gl,fin,win)});
+    anim3(o,p,T,dt,gl,fin,win);o.cap.visible=!!MAINT&&p.t<2&&p.i===1;o.g.visible=!p.hide});
   Q.ball.position.set(ball.x-W/2,Math.max(.13,ball.z),ball.y-H/2);Q.ball.rotation.set((ball.rot||0)*.7,ball.rot||0,0);
   Q.wb=Q.wb||[0,1].map(()=>{const m=Q.ball.clone();Q.sc.add(m);return m});Q.wb.forEach((m,i)=>{const b=WB[i];m.visible=INTRO()&&!!b.on;if(b.on){m.position.set(b.x-W/2,Math.max(.13,b.z),b.y-H/2);m.rotation.x=T*9}});
-  Q.rg.forEach((m,t)=>{const q=human(t)&&P[t*NPT+ctl[t]];m.visible=!!q;if(q)m.position.set(q.x-W/2,.03,q.y-H/2)});
+  Q.rg.forEach((m,t)=>{const q=!MAINT&&human(t)&&P[t*NPT+ctl[t]];m.visible=!!q;if(q)m.position.set(q.x-W/2,.03,q.y-H/2)});
   r.render(Q.sc,Q.cam);
   const V=new THREE.Vector3();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${ch*.022}px ${FONT}`;
   for(const p of P){if(p.i>0&&(ball.own===p||(human(p.t)&&ctl[p.t]==p.i))){V.set(p.x-W/2,2.15,p.y-H/2).project(Q.cam);const x=(V.x+1)/2*cw,y=(1-V.y)/2*ch,nm=PL(p).n+stepTag(p),tw=ctx.measureText(nm).width+ch*.02;ctx.fillStyle='rgba(4,7,15,.8)';ctx.beginPath();ctx.roundRect(x-tw/2,y-ch*.014,tw,ch*.028,ch*.006);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(nm,x,y)}}}
@@ -1210,7 +1254,7 @@ function showPre(){const R=(l,x,y)=>`<div class="st"><b>${x}</b><div><small>${l}
   $('hst').innerHTML=R('Attaque',a[0],b[0])+R('Milieu',a[1],b[1])+R('Défense',a[2],b[2])+R('Gardien',a[3],b[3])+`<div class="ev">${STD[stad].n} · ${FMTS[fmt].n} · ${dur} min</div>`;
   $('h2go').style.display='none';['hres','hskip','hq'].forEach(i=>$(i).style.display='block');$('halfm').style.display='flex';focusPf($('hres'))}
 function hidePre(){$('halfm').style.display='none'}
-function togglePause(){if(state==='play'||state==='intro'){wasI=state==='intro';state='pause';if(wasI)showPre();else $('pause').style.display='flex'}else if(state==='pause'){state=wasI?'intro':'play';if(wasI){hidePre();wasI=false}else $('pause').style.display='none'}}
+function togglePause(){if(MAINT)return;if(state==='play'||state==='intro'){wasI=state==='intro';state='pause';if(wasI)showPre();else $('pause').style.display='flex'}else if(state==='pause'){state=wasI?'intro':'play';if(wasI){hidePre();wasI=false}else $('pause').style.display='none'}}
 $('hres').onclick=togglePause;$('hskip').onclick=()=>{togglePause();skipIntro()};$('hq').onclick=()=>{wasI=false;toMenu()};$('iskip').onclick=skipIntro;
 const navOK=()=>state!=='play'&&state!=='goal'&&state!=='full'&&state!=='intro'&&!$('load').classList.contains('on');
 const cont=()=>state==='pause'?(wasI?$('halfm'):$('pause')):state==='end'?$('end'):state==='half'?$('halfm'):document.querySelector('.scr.on');
