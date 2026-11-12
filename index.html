@@ -452,7 +452,7 @@ async function api(a,d,u){const r=await fetch(u||'/api/auth',{method:'POST',head
 const setUser=u=>{ACC=u?{n:u.pseudo,av:u.av||'',role:u.role,pts:u.points,pl:u.played}:null;setAvt()};
 function setAvt(){for(const [i,n] of [['avt','avn'],['oavt','oavn']]){const a=$(i);a.style.backgroundImage=ACC&&ACC.av?`url(${ACC.av})`:'';a.textContent=ACC&&!ACC.av?ACC.n[0].toUpperCase():'';$(n).textContent=ACC?ACC.n:''}}
 let accFails=0;
-function renderAcc(m){if(m!=null)accMode=m;const c=accMode===0;$('accT').textContent=c?'CRÉE TON COMPTE':'CONNEXION';$('accW2').style.display=$('accQ').style.display=$('accR').style.display=c?'':'none';$('accSw').textContent=c?'J\'ai déjà un compte':'Créer un compte';$('accOff').style.display='none';$('accFg').style.display=accMode===1&&accFails>=2?'':'none';$('accW').value=$('accP').value=$('accW2').value=$('accQ').value=$('accR').value='';$('accE').textContent=c?'Un seul compte, valable sur tous tes appareils.':'Entre ton pseudo et ton mot de passe.';$('accGo').disabled=false}
+function renderAcc(m){if(m!=null)accMode=m;const c=accMode===0;$('accT').textContent=c?'CRÉE TON COMPTE':'CONNEXION';$('accW2').style.display=$('accQ').style.display=$('accR').style.display=c?'':'none';$('accSw').textContent=c?'J\'ai déjà un compte':'Créer un compte';$('accOff').style.display='none';$('accFg').style.display=accMode===1?'':'none';$('accW').value=$('accP').value=$('accW2').value=$('accQ').value=$('accR').value='';$('accE').textContent=c?'Un seul compte, valable sur tous tes appareils.':'Entre ton pseudo et ton mot de passe.';$('accGo').disabled=false}
 function toAcc(m){renderAcc(m);show('acc');setTimeout(()=>$('accP').focus(),100)}
 async function afterLoad(){if(TOK){try{const j=await api('me');setUser(j.user);return goAfter(j.user)}catch(e){if(e.status===401||e.status===403)tokSave('');else{/* serveur injoignable : on propose le mode hors ligne */}}}
   toAcc(0);if(TOK){$('accE').textContent='Serveur injoignable pour l\'instant.';$('accOff').style.display=''}}
@@ -702,7 +702,7 @@ $('accGo').onclick=async()=>{const n=$('accP').value.trim(),w=$('accW').value,e=
   if(accMode===0&&$('accR').value.trim().length<2)return e.textContent='Réponse secrète : 2 caractères minimum.';
   b.disabled=true;e.textContent='Connexion au serveur…';
   try{const j=await api(accMode===0?'register':'login',Object.assign({pseudo:n,password:w},accMode===0?{secretQ:$('accQ').value.trim(),secretA:$('accR').value.trim()}:{}));accFails=0;tokSave(j.token);setUser(j.user);OFFL=false;e.textContent='';await shotScene(true,'BUT ! CONNEXION RÉUSSIE','Bienvenue '+j.user.pseudo);goAfter(j.user)}
-  catch(x){const c=cleanErr(x);e.textContent=c.d;if(!x.status)$('accOff').style.display='';if(accMode===1&&(x.status===401||x.status===403||x.status===404)){accFails++;if(accFails>=2)$('accFg').style.display=''}await shotScene(false,c.t,c.d);if(accMode===1&&[401,403,404].includes(x.status))await forgot(n,true)}b.disabled=false};
+  catch(x){const c=cleanErr(x);e.textContent=c.d;if(!x.status)$('accOff').style.display='';if(accMode===1&&(x.status===401||x.status===403||x.status===404)){accFails++;$('accFg').style.display=''}await shotScene(false,c.t,c.d);if(accMode===1&&[401,403,404].includes(x.status))await forgot(n,true)}b.disabled=false};
 $('accOff').onclick=()=>{OFFL=true;tokSave('');ACC={n:'Invité',av:'',role:'player'};setAvt();goAfter(null)};
 document.querySelectorAll('#acc input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')$('accGo').click()}));
 $('accSw').onclick=()=>renderAcc(accMode===0?1:0);
